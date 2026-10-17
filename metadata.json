@@ -1,0 +1,6 @@
+{
+  "name": "FactorizaLab: De Términos a Factores",
+  "description": "Herramienta interactiva de pedagogía visual de álgebra para secundaria y proyección en aula: descomposición de términos, áreas geométricas, factor común monomio y trinomios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
