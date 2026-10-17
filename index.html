@@ -1,18 +1,3094 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FactorizaLab: De Términos a Factores</title>
-    <meta name="description" content="Herramienta interactiva de pedagogía visual de álgebra para secundaria: términos, factores, áreas geométricas y factorización paso a paso." />
-    <meta property="og:title" content="FactorizaLab: De Términos a Factores" />
-    <meta property="og:description" content="Herramienta interactiva de pedagogía visual de álgebra para secundaria: términos, factores, áreas geométricas y factorización paso a paso." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FactorizaLab: De Términos a Factores</title>
+  <meta name="description" content="Herramienta interactiva de pedagogía visual de álgebra para secundaria: términos, factores, áreas geométricas y factorización paso a paso." />
+  <meta property="og:title" content="FactorizaLab: De Términos a Factores" />
+  <meta property="og:description" content="Herramienta interactiva de pedagogía visual de álgebra para secundaria: términos, factores, áreas geométricas y factorización paso a paso." />
+  <meta property="og:type" content="website" />
+  <style>
+    :root {
+      --bg-main: #FAFAF7;
+      --navy-primary: #0D2B52;
+      --navy-dark: #071933;
+      --navy-hover: #163C6D;
+      --navy-surface: #1E3A8A;
+      --card-bg: #FFFFFF;
+      --border-color: #CBD5E1;
+      --border-dark: #94A3B8;
+      
+      /* Código de color pedagógico estricto */
+      --color-sign: #DC2626;      /* Rojo coral (+ / -) */
+      --color-coeff: #2563EB;     /* Azul intenso (Número grande) */
+      --color-var: #059669;       /* Verde esmeralda (Literal/Letra) */
+      --color-exp: #7C3AED;       /* Morado (Exponente pequeño) */
+      
+      --amber-gold: #F59E0B;
+      --amber-light: #FEF3C7;
+      --emerald-dark: #047857;
+      --emerald-light: #D1FAE5;
+      
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'Consolas', 'Courier New', monospace;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: #1E293B;
+      font-family: var(--font-family);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* HEADER EDITORIAL ACADÉMICO */
+    .app-header {
+      background-color: var(--navy-primary);
+      color: #FFFFFF;
+      border-bottom: 2px solid #334155;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 0.75rem 1.5rem;
+    }
+    .header-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-logo {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 0.85rem;
+      background-color: var(--amber-gold);
+      color: var(--navy-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+    .brand-title span {
+      color: var(--amber-gold);
+      font-weight: 400;
+      font-size: 1.05rem;
+    }
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: #CBD5E1;
+      font-weight: 500;
+    }
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .header-btn {
+      background: rgba(30, 58, 138, 0.6);
+      color: #E2E8F0;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+    .header-btn:hover {
+      background: rgba(30, 58, 138, 0.9);
+      color: #FFFFFF;
+    }
+
+    /* MAIN VIEWPORT */
+    .app-main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 9rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* CÓDIGO DE COLOR PEDAGÓGICO */
+    .legend-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 0.85rem 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .legend-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .legend-label-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pulse-dot {
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 50%;
+      background: #2563EB;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+    .legend-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #334155;
+    }
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.65rem;
+    }
+    .legend-item {
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      background: #F8FAFC;
+    }
+    .legend-item:hover {
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      border-color: var(--border-dark);
+    }
+    .legend-item.active {
+      box-shadow: 0 0 0 2px #2563EB, 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .legend-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .legend-name {
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .legend-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.35rem;
+    }
+    .legend-desc {
+      font-size: 0.7rem;
+      color: #64748B;
+      margin-top: 0.25rem;
+      line-height: 1.25;
+    }
+
+    /* LEVEL BANNER */
+    .level-banner {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .level-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+    .level-heading {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--navy-primary);
+    }
+    .level-sub {
+      font-size: 0.85rem;
+      color: #64748B;
+      margin-top: 0.15rem;
+    }
+
+    /* CARD DE PROYECCIÓN GIGANTE */
+    .blackboard-card {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+      border: 3px solid var(--border-color);
+      border-radius: 1.5rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .blackboard-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94A3B8;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    /* EXPRESIÓN MATEMÁTICA GIGANTE */
+    .math-expression-wrap {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 100%;
+    }
+    .math-expression {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1rem 1.75rem;
+      border-radius: 1.25rem;
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+      font-family: var(--font-mono);
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .math-expression.giant {
+      font-size: 4.75rem;
+      padding: 1.25rem 2.25rem;
+    }
+
+    /* COMPONENTES ALGEBRAICOS INTERACTIVOS */
+    .term-token {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .term-token:hover {
+      background: #F1F5F9;
+    }
+    .token-sign {
+      margin: 0 0.35rem;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .token-sign:hover {
+      transform: scale(1.2);
+    }
+    .token-coeff {
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .token-coeff:hover {
+      transform: scale(1.15);
+    }
+    .token-var {
+      font-style: italic;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .token-var:hover {
+      transform: scale(1.15);
+    }
+    .token-exp {
+      font-size: 0.6em;
+      position: relative;
+      top: -0.45em;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .token-exp:hover {
+      transform: scale(1.25);
+    }
+
+    /* CLASES DE COLOR PEDAGÓGICO */
+    .colored .token-sign { color: var(--color-sign) !important; font-weight: 900; }
+    .colored .token-coeff { color: var(--color-coeff) !important; font-weight: 900; }
+    .colored .token-var { color: var(--color-var) !important; font-weight: 800; }
+    .colored .token-exp { color: var(--color-exp) !important; font-weight: 900; }
+
+    /* FILTRO ACTIVO */
+    .filter-sign .token-coeff, .filter-sign .token-var, .filter-sign .token-exp { opacity: 0.25; }
+    .filter-coeff .token-sign, .filter-coeff .token-var, .filter-coeff .token-exp { opacity: 0.25; }
+    .filter-var .token-sign, .filter-var .token-coeff, .filter-var .token-exp { opacity: 0.25; }
+    .filter-exp .token-sign, .filter-exp .token-coeff, .filter-exp .token-var { opacity: 0.25; }
+
+    /* INSPECTOR FLOTANTE */
+    .inspector-card {
+      margin-top: 1rem;
+      background: var(--navy-dark);
+      color: #FFFFFF;
+      border: 1px solid #334155;
+      border-radius: 1rem;
+      padding: 0.85rem 1.25rem;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      max-width: 650px;
+      width: 100%;
+      text-align: left;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .inspector-icon {
+      background: #1E293B;
+      font-size: 1.35rem;
+      padding: 0.5rem;
+      border-radius: 0.65rem;
+    }
+    .inspector-body {
+      flex: 1;
+    }
+    .inspector-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .inspector-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: #94A3B8;
+    }
+    .inspector-title strong {
+      color: #FFFFFF;
+      font-size: 0.95rem;
+    }
+    .inspector-text {
+      font-size: 0.85rem;
+      color: #F1F5F9;
+      margin-top: 0.25rem;
+    }
+
+    /* PISTAS DE RAZONAMIENTO GUIADO */
+    .clues-box {
+      background: #FEF3C7;
+      border: 2px solid #FCD34D;
+      border-radius: 1.25rem;
+      padding: 1rem 1.5rem;
+      text-align: left;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .clues-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+    .clues-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #78350F;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .clues-badge {
+      background: #FDE68A;
+      color: #78350F;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+    }
+    .clues-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .clue-item {
+      background: #FFFFFF;
+      border: 1px solid #FDE68A;
+      border-radius: 0.75rem;
+      padding: 0.65rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1E293B;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+    }
+    .clue-num {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--amber-gold);
+      color: #000000;
+      font-weight: 900;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    /* NIVEL 1: BLOQUES VS FACTORES */
+    .blocks-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 2px dashed #E2E8F0;
+    }
+    .block-card {
+      background: #FFFFFF;
+      border: 3px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .block-card:hover {
+      border-color: #3B82F6;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .block-card.selected {
+      border-color: #2563EB;
+      background: #EFF6FF;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
+    }
+    .block-card-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #94A3B8;
+      margin-bottom: 0.35rem;
+    }
+    .block-card-term {
+      font-size: 2.25rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--navy-primary);
+    }
+    .mode-switch-wrap {
+      display: inline-flex;
+      background: #F1F5F9;
+      border: 2px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 0.35rem;
+      gap: 0.35rem;
+    }
+    .mode-switch-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      border: none;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: #64748B;
+      background: transparent;
+    }
+    .mode-switch-btn.active-sum {
+      background: var(--navy-primary);
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .mode-switch-btn.active-factors {
+      background: #7E22CE;
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* NIVEL 2: ARQUITECTO DE ÁREAS */
+    .area-blueprint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 1.5rem auto;
+      flex-wrap: wrap;
+    }
+    .area-height-box {
+      width: 7.5rem;
+      height: 9rem;
+      border-radius: 1.25rem;
+      border: 3px dashed #3B82F6;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .area-height-box.solved {
+      border-style: solid;
+      background: #EFF6FF;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
+    }
+    .area-input {
+      width: 100%;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: #1E40AF;
+      border: none;
+      background: transparent;
+      outline: none;
+    }
+    .area-input::placeholder {
+      color: #94A3B8;
+      font-weight: 700;
+    }
+    .area-sections-wrap {
+      flex: 1;
+      min-width: 320px;
+      max-width: 650px;
+    }
+    .area-top-widths {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .area-top-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .area-top-input {
+      width: 100%;
+      max-width: 140px;
+      padding: 0.4rem 0.5rem;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 800;
+      background: #FFFFFF;
+      border: 2px dashed #94A3B8;
+      border-radius: 0.75rem;
+      color: #1E293B;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .area-top-input:focus {
+      border-color: #10B981;
+      border-style: solid;
+    }
+    .area-rectangle-canvas {
+      display: flex;
+      gap: 0.5rem;
+      height: 9rem;
+      border-radius: 1.25rem;
+      border: 4px solid var(--navy-primary);
+      background: #FFFFFF;
+      padding: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+    .area-subbox {
+      flex: 1;
+      border-radius: 0.85rem;
+      border: 2px solid #CBD5E1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+      background: #F8FAFC;
+    }
+    .area-subbox.box-1 { background: #EFF6FF; border-color: #93C5FD; }
+    .area-subbox.box-2 { background: #ECFDF5; border-color: #A7F3D0; }
+    .area-subbox.box-3 { background: #FFF1F2; border-color: #FECDD3; }
+    .area-subbox-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #64748B;
+    }
+    .area-subbox-val {
+      font-size: 2.25rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: #0F172A;
+      margin-top: 0.25rem;
+    }
+
+    /* NIVEL 3: DETECTIVE DE COMPONENTES */
+    .stations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    .station-card {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      text-align: left;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+    }
+    .station-card.complete {
+      border-color: #10B981;
+      background: #F0FDF4;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    }
+    .station-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+    .station-pill {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+    }
+    .station-status {
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .station-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 0.25rem;
+    }
+    .station-desc {
+      font-size: 0.8rem;
+      color: #64748B;
+      margin-bottom: 0.85rem;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .opt-btn {
+      flex: 1;
+      min-width: 50px;
+      padding: 0.5rem;
+      border-radius: 0.65rem;
+      border: 1px solid var(--border-color);
+      background: #F8FAFC;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1E293B;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .opt-btn:hover {
+      background: #E2E8F0;
+    }
+    .opt-btn.selected {
+      background: #2563EB;
+      color: #FFFFFF;
+      border-color: #1D4ED8;
+    }
+    .opt-btn.selected-green {
+      background: #059669;
+      color: #FFFFFF;
+      border-color: #047857;
+    }
+    .common-factor-assembled {
+      background: linear-gradient(135deg, #0D2B52 0%, #1E3A8A 50%, #4338CA 100%);
+      color: #FFFFFF;
+      border-radius: 1.5rem;
+      padding: 1.75rem 1.5rem;
+      margin-top: 1.5rem;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(13, 43, 82, 0.25);
+    }
+    .assembled-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--amber-gold);
+      margin-bottom: 0.5rem;
+    }
+    .assembled-expr {
+      font-size: 3.5rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      display: inline-block;
+      padding: 0.5rem 2rem;
+      border-radius: 1.25rem;
+      background: var(--amber-gold);
+      color: #0F172A;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .assembled-expr.empty {
+      background: rgba(255,255,255,0.1);
+      color: #94A3B8;
+      border: 2px dashed rgba(255,255,255,0.3);
+      font-size: 2rem;
+    }
+
+    /* NIVEL 4: ROMPECABEZAS CUADRÁTICO */
+    .grid-2x2-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+      margin-top: 1rem;
+    }
+    @media (max-width: 900px) {
+      .grid-2x2-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    .pairs-column {
+      background: #FFFFFF;
+      border: 2px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      text-align: left;
+    }
+    .puzzle-target-box {
+      background: #FEF3C7;
+      border: 1px solid #FDE68A;
+      border-radius: 0.85rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      color: #78350F;
+    }
+    .puzzle-pair-btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.85rem;
+      border: 2px solid var(--border-color);
+      background: #F8FAFC;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .puzzle-pair-btn:hover {
+      background: #F1F5F9;
+      border-color: var(--border-dark);
+    }
+    .puzzle-pair-btn.active {
+      border-color: #10B981;
+      background: #ECFDF5;
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.25);
+    }
+    .puzzle-pair-btn.active-wrong {
+      border-color: #EF4444;
+      background: #FEF2F2;
+    }
+    .grid-2x2-board {
+      background: #FAFAF7;
+      border: 3px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .grid-2x2-outer-top {
+      background: #F3E8FF;
+      color: #581C87;
+      border: 1px solid #D8B4FE;
+      padding: 0.4rem 1.25rem;
+      border-radius: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .grid-2x2-mid-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 440px;
+    }
+    .grid-2x2-outer-left {
+      background: #E0E7FF;
+      color: #312E81;
+      border: 1px solid #C7D2FE;
+      padding: 0.75rem 0.4rem;
+      border-radius: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 800;
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      text-align: center;
+    }
+    .grid-2x2-boxes {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: var(--navy-primary);
+      padding: 0.65rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+    .grid-cell {
+      height: 7.5rem;
+      border-radius: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      text-align: center;
+      background: #FFFFFF;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .cell-top-left { background: #EFF6FF; border-color: #BFDBFE; color: #1E3A8A; }
+    .cell-top-right { background: #FEF3C7; border-color: #FDE68A; color: #92400E; }
+    .cell-bot-left { background: #FEF3C7; border-color: #FDE68A; color: #92400E; }
+    .cell-bot-right { background: #F3E8FF; border-color: #E9D5FF; color: #581C87; }
+    .cell-solved { background: #ECFDF5 !important; border-color: #6EE7B7 !important; color: #065F46 !important; }
+    .cell-tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      opacity: 0.75;
+    }
+    .cell-val {
+      font-size: 2.25rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      margin-top: 0.2rem;
+    }
+
+    /* BANNER DE ÉXITO */
+    .success-banner {
+      background: #ECFDF5;
+      border: 3px solid #10B981;
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      text-align: center;
+      margin-top: 1.25rem;
+      color: #064E3B;
+      animation: scaleUp 0.25s ease-out;
+    }
+    .success-badge {
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #047857;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    .success-equation {
+      font-size: 2.5rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0;
+    }
+
+    /* CONSOLA FIJA DEL PROFESOR (FOOTER) */
+    .teacher-console {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: var(--navy-primary);
+      color: #FFFFFF;
+      border-top: 4px solid var(--amber-gold);
+      box-shadow: 0 -10px 25px rgba(0,0,0,0.25);
+      padding: 0.65rem 1rem;
+    }
+    .console-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .level-selector-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .console-section-title {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--amber-gold);
+      margin-right: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .level-chip {
+      padding: 0.4rem 0.85rem;
+      border-radius: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(30, 58, 138, 0.7);
+      color: #FFFFFF;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .level-chip:hover {
+      background: rgba(30, 58, 138, 1);
+    }
+    .level-chip.active {
+      background: var(--amber-gold);
+      color: var(--navy-primary);
+      font-weight: 900;
+      box-shadow: 0 0 0 2px #FFFFFF, 0 4px 6px rgba(0,0,0,0.15);
+      transform: scale(1.05);
+    }
+    .level-chip.locked {
+      opacity: 0.5;
+      background: #1E293B;
+      color: #94A3B8;
+    }
+    .lock-toggle-btn {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.35rem;
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      cursor: pointer;
+    }
+    .lock-toggle-btn:hover {
+      color: #FFFFFF;
+    }
+    .console-controls-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.75rem;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .action-btn:active {
+      transform: scale(0.97);
+    }
+    .btn-new-exercise {
+      background: #2563EB;
+      color: #FFFFFF;
+    }
+    .btn-new-exercise:hover {
+      background: #1D4ED8;
+    }
+    .btn-color-toggle {
+      background: #10B981;
+      color: #064E3B;
+    }
+    .btn-color-toggle.off {
+      background: #475569;
+      color: #E2E8F0;
+    }
+    .btn-step-group {
+      display: inline-flex;
+      background: #1E293B;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid #475569;
+    }
+    .btn-step {
+      background: var(--amber-gold);
+      color: #000000;
+      padding: 0.45rem 0.85rem;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-step:hover {
+      background: #FBBF24;
+    }
+    .btn-step-reset {
+      background: #334155;
+      color: #CBD5E1;
+      padding: 0.45rem 0.65rem;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-step-reset:hover {
+      background: #475569;
+      color: #FFFFFF;
+    }
+    .btn-mirror {
+      background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
+      color: #FFFFFF;
+    }
+    .btn-mirror:hover {
+      opacity: 0.95;
+    }
+    .btn-freeboard {
+      background: #1E293B;
+      color: var(--amber-gold);
+      border: 1px solid #475569;
+    }
+    .btn-freeboard:hover {
+      background: #334155;
+    }
+    .btn-font-scale {
+      padding: 0.45rem 0.65rem;
+      background: #1E293B;
+      color: #E2E8F0;
+      border: 1px solid #475569;
+      border-radius: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .btn-font-scale.active {
+      background: var(--amber-gold);
+      color: #000000;
+      border-color: var(--amber-gold);
+    }
+
+    /* MODALES PEDAGÓGICOS */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 1.5rem;
+      border: 3px solid var(--border-color);
+      width: 100%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      text-align: left;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--navy-primary);
+    }
+    .modal-close-btn {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 0.5rem;
+      width: 2rem;
+      height: 2rem;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #64748B;
+      cursor: pointer;
+    }
+    .modal-close-btn:hover {
+      background: #E2E8F0;
+      color: #0F172A;
+    }
+
+    /* ANIMACIONES */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .fade-in { animation: fadeIn 0.25s ease-out; }
+    .scale-up { animation: scaleUp 0.25s ease-out; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .math-expression { font-size: 2.25rem; }
+      .math-expression.giant { font-size: 3rem; }
+      .app-main { padding-bottom: 12rem; }
+      .console-inner { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body class="colored">
+
+  <!-- ENCABEZADO SUPERIOR EDITORIAL -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <div class="brand-logo">F</div>
+        <div>
+          <h1 class="brand-title">FactorizaLab <span>| De Términos a Factores</span></h1>
+          <p class="brand-subtitle">Laboratorio Didáctico Visual de Álgebra para Salón de Secundaria</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <button type="button" class="header-btn" onclick="openGuideModal()">
+          <span>📖</span> Guía Didáctica
+        </button>
+        <button type="button" class="header-btn" onclick="toggleFullscreen()">
+          <span>⛶</span> Pantalla Completa
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="app-main" id="main-content">
+    <!-- Se llena dinámicamente con JavaScript -->
+  </main>
+
+  <!-- CONSOLA DOCENTE FIJA INFERIOR -->
+  <footer class="teacher-console">
+    <div class="console-inner" id="console-content">
+      <!-- Se llena dinámicamente con JavaScript -->
+    </div>
+  </footer>
+
+  <!-- CONTENEDOR DE MODALES -->
+  <div id="modal-root"></div>
+
+  <!-- CÓDIGO JAVASCRIPT VANILLA AUTOCONTENIDO -->
+  <script>
+    /* =========================================================================
+       1. UTILIDADES MATEMÁTICAS PURAS
+       ========================================================================= */
+    function gcd(a, b) {
+      a = Math.abs(Math.round(a));
+      b = Math.abs(Math.round(b));
+      while (b !== 0) {
+        const temp = b;
+        b = a % b;
+        a = temp;
+      }
+      return a || 1;
+    }
+
+    function gcdArray(nums) {
+      if (!nums || nums.length === 0) return 1;
+      return nums.reduce((acc, curr) => gcd(acc, curr), Math.abs(nums[0]));
+    }
+
+    function toSuperscript(num) {
+      if (num === 1) return '';
+      const supers = {
+        '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+        '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻'
+      };
+      return String(num).split('').map(ch => supers[ch] || ch).join('');
+    }
+
+    function findFactorPairs(c, targetSum) {
+      const pairs = [];
+      const absC = Math.abs(c);
+      const seen = new Set();
+      for (let i = 1; i <= Math.sqrt(absC); i++) {
+        if (absC % i === 0) {
+          const j = absC / i;
+          const candidates = c > 0 ? [[i, j], [-i, -j]] : [[i, -j], [-i, j]];
+          for (const [m, n] of candidates) {
+            const key = [m, n].sort((a,b)=>a-b).join(',');
+            if (!seen.has(key)) {
+              seen.add(key);
+              pairs.push({
+                m, n,
+                product: m * n,
+                sum: m + n,
+                isCorrect: (m + n === targetSum) && (m * n === c)
+              });
+            }
+          }
+        }
+      }
+      pairs.sort((a, b) => a.m - b.m);
+      return pairs;
+    }
+
+    function parseSimpleTerm(rawTerm, id) {
+      let cleaned = rawTerm.trim().replace(/\s+/g, '');
+      let sign = '+';
+      if (cleaned.startsWith('+')) {
+        cleaned = cleaned.substring(1);
+      } else if (cleaned.startsWith('-')) {
+        sign = '-';
+        cleaned = cleaned.substring(1);
+      }
+      const coeffMatch = cleaned.match(/^\d+/);
+      let coefficient = 1;
+      let remaining = cleaned;
+      if (coeffMatch) {
+        coefficient = parseInt(coeffMatch[0], 10);
+        remaining = cleaned.substring(coeffMatch[0].length);
+      }
+      const variables = [];
+      const varRegex = /([a-zA-Z])(?:\^(\d+)|([⁰¹²³⁴⁵⁶⁷⁸⁹]+))?/g;
+      let match;
+      const supMap = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
+      while ((match = varRegex.exec(remaining)) !== null) {
+        const varName = match[1];
+        let exp = 1;
+        if (match[2]) {
+          exp = parseInt(match[2], 10);
+        } else if (match[3]) {
+          const numStr = match[3].split('').map(c => supMap[c] || c).join('');
+          exp = parseInt(numStr, 10);
+        }
+        variables.push({ name: varName, exponent: exp });
+      }
+      return { id, raw: rawTerm, sign, coefficient, variables };
+    }
+
+    /* =========================================================================
+       2. BANCO DE EJERCICIOS PARA LOS 4 NIVELES PEDAGÓGICOS (6+ por nivel)
+       ========================================================================= */
+    const LEVEL_1_DATA = [
+      {
+        id: 'l1-1',
+        expression: '6x² + 9x',
+        terms: [parseSimpleTerm('6x²', 't1'), parseSimpleTerm('+9x', 't2')],
+        commonFactor: '3x',
+        parenthesisFactor: '2x + 3',
+        factoredExpression: '3x(2x + 3)',
+        steps: [
+          'Paso 1: Identifica cuántos términos hay en la suma. Aquí hay 2 términos separados por el signo "+".',
+          'Paso 2: Busca qué tienen en común los coeficientes (6 y 9 tienen divisor común 3) y las literales (ambos tienen x).',
+          'Paso 3: Extrae el factor común 3x fuera de un paréntesis.',
+          'Paso 4: Divide cada término original entre 3x: 6x² ÷ 3x = 2x, y 9x ÷ 3x = 3. Obtenemos 3x(2x + 3).'
+        ]
+      },
+      {
+        id: 'l1-2',
+        expression: '12y³ - 8y²',
+        terms: [parseSimpleTerm('12y³', 't1'), parseSimpleTerm('-8y²', 't2')],
+        commonFactor: '4y²',
+        parenthesisFactor: '3y - 2',
+        factoredExpression: '4y²(3y - 2)',
+        steps: [
+          'Paso 1: Nota el separador de resta "-". Tenemos 12y³ y -8y².',
+          'Paso 2: Entre 12 y 8, el divisor más grande es 4. En las variables, el menor exponente común es y².',
+          'Paso 3: El factor común monomio es 4y².',
+          'Paso 4: Dividimos: 12y³ ÷ 4y² = 3y, y -8y² ÷ 4y² = -2. Queda 4y²(3y - 2).'
+        ]
+      },
+      {
+        id: 'l1-3',
+        expression: '15a²b + 10ab',
+        terms: [parseSimpleTerm('15a²b', 't1'), parseSimpleTerm('+10ab', 't2')],
+        commonFactor: '5ab',
+        parenthesisFactor: '3a + 2',
+        factoredExpression: '5ab(3a + 2)',
+        steps: [
+          'Paso 1: Cada término tiene dos literales: "a" y "b".',
+          'Paso 2: Divisor común de 15 y 10 es 5. Letras comunes: a¹ y b¹.',
+          'Paso 3: El factor común es 5ab.',
+          'Paso 4: Al dividir: 15a²b ÷ 5ab = 3a, y 10ab ÷ 5ab = 2. Obtenemos 5ab(3a + 2).'
+        ]
+      },
+      {
+        id: 'l1-4',
+        expression: '4m² + 16m',
+        terms: [parseSimpleTerm('4m²', 't1'), parseSimpleTerm('+16m', 't2')],
+        commonFactor: '4m',
+        parenthesisFactor: 'm + 4',
+        factoredExpression: '4m(m + 4)',
+        steps: [
+          'Paso 1: Identifica los coeficientes 4 y 16.',
+          'Paso 2: 4 divide exactamente a 16, así que 4 sale completo como factor numérico.',
+          'Paso 3: La variable "m" se repite en ambos términos.',
+          'Paso 4: 4m² ÷ 4m = m, y 16m ÷ 4m = 4. Resultado: 4m(m + 4).'
+        ]
+      },
+      {
+        id: 'l1-5',
+        expression: '18p³ - 27p²',
+        terms: [parseSimpleTerm('18p³', 't1'), parseSimpleTerm('-27p²', 't2')],
+        commonFactor: '9p²',
+        parenthesisFactor: '2p - 3',
+        factoredExpression: '9p²(2p - 3)',
+        steps: [
+          'Paso 1: Observa los números 18 y 27. Ambos están en la tabla del 9.',
+          'Paso 2: La letra común es p, con exponente mínimo 2 (p²).',
+          'Paso 3: Extraemos 9p² al frente.',
+          'Paso 4: Dividimos: 18p³ ÷ 9p² = 2p; -27p² ÷ 9p² = -3. Factorización: 9p²(2p - 3).'
+        ]
+      },
+      {
+        id: 'l1-6',
+        expression: '7w³ - 14w² + 21w',
+        terms: [parseSimpleTerm('7w³', 't1'), parseSimpleTerm('-14w²', 't2'), parseSimpleTerm('+21w', 't3')],
+        commonFactor: '7w',
+        parenthesisFactor: 'w² - 2w + 3',
+        factoredExpression: '7w(w² - 2w + 3)',
+        steps: [
+          'Paso 1: Este ejercicio tiene 3 términos separados por signos "-" y "+".',
+          'Paso 2: El 7 divide a 7, a 14 y a 21. La letra "w" aparece en los tres términos.',
+          'Paso 3: El factor común de los tres términos es 7w.',
+          'Paso 4: Dividiendo cada uno: 7w³÷7w = w², -14w²÷7w = -2w, +21w÷7w = +3. Resultado: 7w(w² - 2w + 3).'
+        ]
+      }
+    ];
+
+    const LEVEL_2_DATA = [
+      {
+        id: 'l2-1',
+        expression: '4x + 12',
+        height: '4',
+        heightOptions: ['2', '4', 'x', '4x'],
+        sections: [
+          { id: 's1', termString: '4x', widthLabel: 'x', widthValue: 'x', cls: 'box-1' },
+          { id: 's2', termString: '12', widthLabel: '3', widthValue: '3', cls: 'box-2' }
+        ],
+        totalBase: 'x + 3',
+        factoredExpression: '4(x + 3)',
+        steps: [
+          'Paso 1: Mira la altura compartida. ¿Qué número divide a las áreas 4x y 12 a la vez? Es el 4.',
+          'Paso 2: Calcula la base de la primera sección: 4x ÷ 4 = x.',
+          'Paso 3: Calcula la base de la segunda sección: 12 ÷ 4 = 3.',
+          'Paso 4: La base total es (x + 3). Área total = Altura × Base = 4(x + 3).'
+        ]
+      },
+      {
+        id: 'l2-2',
+        expression: '6x + 18',
+        height: '6',
+        heightOptions: ['3', '6', '2', '6x'],
+        sections: [
+          { id: 's1', termString: '6x', widthLabel: 'x', widthValue: 'x', cls: 'box-1' },
+          { id: 's2', termString: '18', widthLabel: '3', widthValue: '3', cls: 'box-2' }
+        ],
+        totalBase: 'x + 3',
+        factoredExpression: '6(x + 3)',
+        steps: [
+          'Paso 1: Las dos secciones tienen áreas 6x y 18.',
+          'Paso 2: La altura común es 6, porque 6 × x = 6x y 6 × 3 = 18.',
+          'Paso 3: Sumamos las bases individuales: x + 3.',
+          'Paso 4: La multiplicación equivalente es 6(x + 3).'
+        ]
+      },
+      {
+        id: 'l2-3',
+        expression: '5x² + 15x',
+        height: '5x',
+        heightOptions: ['5', 'x', '5x', '15'],
+        sections: [
+          { id: 's1', termString: '5x²', widthLabel: 'x', widthValue: 'x', cls: 'box-1' },
+          { id: 's2', termString: '15x', widthLabel: '3', widthValue: '3', cls: 'box-2' }
+        ],
+        totalBase: 'x + 3',
+        factoredExpression: '5x(x + 3)',
+        steps: [
+          'Paso 1: Ambas secciones tienen la variable x. La altura común debe incluir 5x.',
+          'Paso 2: Área 1: 5x × x = 5x² (base = x).',
+          'Paso 3: Área 2: 5x × 3 = 15x (base = 3).',
+          'Paso 4: Base completa = x + 3. Expresión factorizada: 5x(x + 3).'
+        ]
+      },
+      {
+        id: 'l2-4',
+        expression: '3x² + 6x + 9',
+        height: '3',
+        heightOptions: ['3', '3x', '6', '9'],
+        sections: [
+          { id: 's1', termString: '3x²', widthLabel: 'x²', widthValue: 'x²', cls: 'box-1' },
+          { id: 's2', termString: '6x', widthLabel: '2x', widthValue: '2x', cls: 'box-2' },
+          { id: 's3', termString: '9', widthLabel: '3', widthValue: '3', cls: 'box-3' }
+        ],
+        totalBase: 'x² + 2x + 3',
+        factoredExpression: '3(x² + 2x + 3)',
+        steps: [
+          'Paso 1: El rectángulo está compuesto por 3 cuartos o secciones.',
+          'Paso 2: La altura que comparten todas las secciones es 3.',
+          'Paso 3: Bases individuales: 3x²÷3 = x², 6x÷3 = 2x, y 9÷3 = 3.',
+          'Paso 4: Multiplicación de dimensiones: 3(x² + 2x + 3).'
+        ]
+      },
+      {
+        id: 'l2-5',
+        expression: '8x² + 20x',
+        height: '4x',
+        heightOptions: ['2x', '4', '4x', '8x'],
+        sections: [
+          { id: 's1', termString: '8x²', widthLabel: '2x', widthValue: '2x', cls: 'box-1' },
+          { id: 's2', termString: '20x', widthLabel: '5', widthValue: '5', cls: 'box-2' }
+        ],
+        totalBase: '2x + 5',
+        factoredExpression: '4x(2x + 5)',
+        steps: [
+          'Paso 1: El MCD de 8 y 20 es 4. Ambas secciones tienen x, por lo que la altura es 4x.',
+          'Paso 2: Primera base: 8x² ÷ 4x = 2x.',
+          'Paso 3: Segunda base: 20x ÷ 4x = 5.',
+          'Paso 4: Factorización geométrica: 4x(2x + 5).'
+        ]
+      },
+      {
+        id: 'l2-6',
+        expression: '2x² + 8x + 14',
+        height: '2',
+        heightOptions: ['2', '4', '2x', '1'],
+        sections: [
+          { id: 's1', termString: '2x²', widthLabel: 'x²', widthValue: 'x²', cls: 'box-1' },
+          { id: 's2', termString: '8x', widthLabel: '4x', widthValue: '4x', cls: 'box-2' },
+          { id: 's3', termString: '14', widthLabel: '7', widthValue: '7', cls: 'box-3' }
+        ],
+        totalBase: 'x² + 4x + 7',
+        factoredExpression: '2(x² + 4x + 7)',
+        steps: [
+          'Paso 1: Todos los números son pares, el 2 divide a 2, 8 y 14.',
+          'Paso 2: La última sección (14) no tiene x, por lo que la altura solo puede ser 2.',
+          'Paso 3: Bases: 2x²÷2 = x², 8x÷2 = 4x, 14÷2 = 7.',
+          'Paso 4: Resultado final: 2(x² + 4x + 7).'
+        ]
+      }
+    ];
+
+    const LEVEL_3_DATA = [
+      {
+        id: 'l3-1',
+        expression: '8a³b² - 12a²b + 4ab',
+        terms: [parseSimpleTerm('8a³b²', 't1'), parseSimpleTerm('-12a²b', 't2'), parseSimpleTerm('+4ab', 't3')],
+        coefficients: [8, 12, 4],
+        gcd: 4,
+        gcdOptions: [2, 4, 8, 12],
+        allVariables: ['a', 'b'],
+        commonVariables: ['a', 'b'],
+        variableMinExponents: { a: 1, b: 1 },
+        commonFactorString: '4ab',
+        quotients: [
+          { original: '8a³b²', divided: '2a²b' },
+          { original: '-12a²b', divided: '-3a' },
+          { original: '+4ab', divided: '+1' }
+        ],
+        factoredExpression: '4ab(2a²b - 3a + 1)',
+        steps: [
+          'Estación 1 (Coeficientes): Los números son 8, 12 y 4. Su Máximo Común Divisor (MCD) es 4.',
+          'Estación 2 (Literales comunes): "a" está en los 3 términos. "b" está en los 3 términos.',
+          'Estación 3 (Menores exponentes): En "a" los exponentes son 3, 2, 1 → elegimos a¹. En "b" son 2, 1, 1 → elegimos b¹.',
+          'Factor Común Armado: 4 · a¹ · b¹ = 4ab.',
+          'División de cada término: 8a³b²÷4ab = 2a²b, -12a²b÷4ab = -3a, +4ab÷4ab = +1.',
+          'Resultado final: 4ab(2a²b - 3a + 1).'
+        ]
+      },
+      {
+        id: 'l3-2',
+        expression: '15x⁴y³ + 25x²y² - 10x³y',
+        terms: [parseSimpleTerm('15x⁴y³', 't1'), parseSimpleTerm('+25x²y²', 't2'), parseSimpleTerm('-10x³y', 't3')],
+        coefficients: [15, 25, 10],
+        gcd: 5,
+        gcdOptions: [5, 10, 15, 25],
+        allVariables: ['x', 'y'],
+        commonVariables: ['x', 'y'],
+        variableMinExponents: { x: 2, y: 1 },
+        commonFactorString: '5x²y',
+        quotients: [
+          { original: '15x⁴y³', divided: '3x²y²' },
+          { original: '+25x²y²', divided: '+5y' },
+          { original: '-10x³y', divided: '-2x' }
+        ],
+        factoredExpression: '5x²y(3x²y² + 5y - 2x)',
+        steps: [
+          'Estación 1: Coeficientes 15, 25, 10 → MCD es 5.',
+          'Estación 2: Literales x e y aparecen en todos los términos.',
+          'Estación 3: Exponentes de x: 4, 2, 3 → menor es 2 (x²). De y: 3, 2, 1 → menor es 1 (y¹).',
+          'Factor Común: 5x²y.',
+          'Dividimos cada término entre 5x²y.',
+          'Resultado: 5x²y(3x²y² + 5y - 2x).'
+        ]
+      },
+      {
+        id: 'l3-3',
+        expression: '14m⁵n² - 21m³n³ + 7m²n²',
+        terms: [parseSimpleTerm('14m⁵n²', 't1'), parseSimpleTerm('-21m³n³', 't2'), parseSimpleTerm('+7m²n²', 't3')],
+        coefficients: [14, 21, 7],
+        gcd: 7,
+        gcdOptions: [1, 7, 14, 21],
+        allVariables: ['m', 'n'],
+        commonVariables: ['m', 'n'],
+        variableMinExponents: { m: 2, n: 2 },
+        commonFactorString: '7m²n²',
+        quotients: [
+          { original: '14m⁵n²', divided: '2m³' },
+          { original: '-21m³n³', divided: '-3mn' },
+          { original: '+7m²n²', divided: '+1' }
+        ],
+        factoredExpression: '7m²n²(2m³ - 3mn + 1)',
+        steps: [
+          'Estación 1: Coeficientes 14, 21, 7 → MCD es 7.',
+          'Estación 2: m y n están en todos los términos.',
+          'Estación 3: Menor exponente de m es 2 (m²). Menor de n es 2 (n²).',
+          'Factor Común: 7m²n².',
+          'División: 14m⁵n²÷7m²n² = 2m³, -21m³n³÷7m²n² = -3mn, +7m²n²÷7m²n² = +1.',
+          'Resultado: 7m²n²(2m³ - 3mn + 1).'
+        ]
+      },
+      {
+        id: 'l3-4',
+        expression: '18p³q⁴ - 24p²q³ + 12pq²',
+        terms: [parseSimpleTerm('18p³q⁴', 't1'), parseSimpleTerm('-24p²q³', 't2'), parseSimpleTerm('+12pq²', 't3')],
+        coefficients: [18, 24, 12],
+        gcd: 6,
+        gcdOptions: [3, 6, 12, 18],
+        allVariables: ['p', 'q'],
+        commonVariables: ['p', 'q'],
+        variableMinExponents: { p: 1, q: 2 },
+        commonFactorString: '6pq²',
+        quotients: [
+          { original: '18p³q⁴', divided: '3p²q²' },
+          { original: '-24p²q³', divided: '-4pq' },
+          { original: '+12pq²', divided: '+2' }
+        ],
+        factoredExpression: '6pq²(3p²q² - 4pq + 2)',
+        steps: [
+          'Estación 1: MCD de 18, 24 y 12 es 6.',
+          'Estación 2: Literales comunes p y q.',
+          'Estación 3: Menor exponente de p es 1. Menor exponente de q es 2.',
+          'Factor Común: 6pq².',
+          'Dividimos término por término y colocamos el cociente.',
+          'Resultado: 6pq²(3p²q² - 4pq + 2).'
+        ]
+      },
+      {
+        id: 'l3-5',
+        expression: '16u⁴v² - 24u³v³ + 32u²v',
+        terms: [parseSimpleTerm('16u⁴v²', 't1'), parseSimpleTerm('-24u³v³', 't2'), parseSimpleTerm('+32u²v', 't3')],
+        coefficients: [16, 24, 32],
+        gcd: 8,
+        gcdOptions: [4, 8, 16, 24],
+        allVariables: ['u', 'v'],
+        commonVariables: ['u', 'v'],
+        variableMinExponents: { u: 2, v: 1 },
+        commonFactorString: '8u²v',
+        quotients: [
+          { original: '16u⁴v²', divided: '2u²v' },
+          { original: '-24u³v³', divided: '-3uv²' },
+          { original: '+32u²v', divided: '+4' }
+        ],
+        factoredExpression: '8u²v(2u²v - 3uv² + 4)',
+        steps: [
+          'Estación 1: 16, 24 y 32 son divisibles entre 8 (MCD = 8).',
+          'Estación 2: u y v están presentes en todos los términos.',
+          'Estación 3: Exponente mínimo de u es 2 (u²), de v es 1 (v¹).',
+          'Factor común ensamblado: 8u²v.',
+          'Resultado: 8u²v(2u²v - 3uv² + 4).'
+        ]
+      },
+      {
+        id: 'l3-6',
+        expression: '9x²y²z - 18xy³z² + 27xyz',
+        terms: [parseSimpleTerm('9x²y²z', 't1'), parseSimpleTerm('-18xy³z²', 't2'), parseSimpleTerm('+27xyz', 't3')],
+        coefficients: [9, 18, 27],
+        gcd: 9,
+        gcdOptions: [3, 9, 18, 27],
+        allVariables: ['x', 'y', 'z'],
+        commonVariables: ['x', 'y', 'z'],
+        variableMinExponents: { x: 1, y: 1, z: 1 },
+        commonFactorString: '9xyz',
+        quotients: [
+          { original: '9x²y²z', divided: 'xy' },
+          { original: '-18xy³z²', divided: '-2y²z' },
+          { original: '+27xyz', divided: '+3' }
+        ],
+        factoredExpression: '9xyz(xy - 2y²z + 3)',
+        steps: [
+          'Estación 1: MCD de 9, 18 y 27 es 9.',
+          'Estación 2: Las tres variables x, y, z aparecen en los tres términos.',
+          'Estación 3: Para cada una, el exponente mínimo es 1 (x¹, y¹, z¹).',
+          'Factor Común: 9xyz.',
+          'Dividimos cada término y armamos el paréntesis final.',
+          'Resultado: 9xyz(xy - 2y²z + 3).'
+        ]
+      }
+    ];
+
+    const LEVEL_4_DATA = [
+      {
+        id: 'l4-1',
+        expression: 'x² + 7x + 12',
+        b: 7,
+        c: 12,
+        m: 3,
+        n: 4,
+        factorPairs: findFactorPairs(12, 7),
+        factoredExpression: '(x + 3)(x + 4)',
+        steps: [
+          'Paso 1: Identifica los coeficientes b = 7 (término lineal) y c = 12 (término constante).',
+          'Paso 2: Buscamos dos números m y n tales que m × n = 12 y m + n = 7.',
+          'Paso 3: Evaluamos pares de factores de 12: 1×12=12 (suma 13 ✗), 2×6=12 (suma 8 ✗), 3×4=12 (suma 7 ✓).',
+          'Paso 4: Colocamos 3x y 4x en las esquinas cruzadas de la cuadrícula 2×2.',
+          'Paso 5: Dimensiones exteriores: (x + 3) y (x + 4). Factorización: (x + 3)(x + 4).'
+        ]
+      },
+      {
+        id: 'l4-2',
+        expression: 'x² + 8x + 15',
+        b: 8,
+        c: 15,
+        m: 3,
+        n: 5,
+        factorPairs: findFactorPairs(15, 8),
+        factoredExpression: '(x + 3)(x + 5)',
+        steps: [
+          'Paso 1: El término constante es 15, y el lineal es 8.',
+          'Paso 2: Factores de 15: 1×15 (suman 16), 3×5 (suman 8 ¡Correcto!).',
+          'Paso 3: Rellenamos la cuadrícula 2×2 con x², 3x, 5x y 15.',
+          'Paso 4: Obtenemos los factores binomios: (x + 3)(x + 5).'
+        ]
+      },
+      {
+        id: 'l4-3',
+        expression: 'x² + 9x + 20',
+        b: 9,
+        c: 20,
+        m: 4,
+        n: 5,
+        factorPairs: findFactorPairs(20, 9),
+        factoredExpression: '(x + 4)(x + 5)',
+        steps: [
+          'Paso 1: Multiplicados dan 20, sumados dan 9.',
+          'Paso 2: Pares: 1×20 (suma 21), 2×10 (suma 12), 4×5 (suma 9 ✓).',
+          'Paso 3: El par ganador es 4 y 5.',
+          'Paso 4: Factorización: (x + 4)(x + 5).'
+        ]
+      },
+      {
+        id: 'l4-4',
+        expression: 'x² + 5x + 6',
+        b: 5,
+        c: 6,
+        m: 2,
+        n: 3,
+        factorPairs: findFactorPairs(6, 5),
+        factoredExpression: '(x + 2)(x + 3)',
+        steps: [
+          'Paso 1: Buscamos m × n = 6 y m + n = 5.',
+          'Paso 2: Probamos 1 y 6 (suma 7 ✗). Probamos 2 y 3 (suma 5 ✓).',
+          'Paso 3: Dimensiones del rectángulo: (x + 2)(x + 3).'
+        ]
+      },
+      {
+        id: 'l4-4',
+        expression: 'x² + 10x + 24',
+        b: 10,
+        c: 24,
+        m: 4,
+        n: 6,
+        factorPairs: findFactorPairs(24, 10),
+        factoredExpression: '(x + 4)(x + 6)',
+        steps: [
+          'Paso 1: Factores de 24: 1×24 (25), 2×12 (14), 3×8 (11), 4×6 (10 ✓).',
+          'Paso 2: El par que suma exactamente 10 es 4 y 6.',
+          'Paso 3: Factorización: (x + 4)(x + 6).'
+        ]
+      },
+      {
+        id: 'l4-6',
+        expression: 'x² + 11x + 18',
+        b: 11,
+        c: 18,
+        m: 2,
+        n: 9,
+        factorPairs: findFactorPairs(18, 11),
+        factoredExpression: '(x + 2)(x + 9)',
+        steps: [
+          'Paso 1: Factores de 18: 1 y 18 (19), 3 y 6 (9), 2 y 9 (11 ✓).',
+          'Paso 2: Seleccionamos 2 y 9.',
+          'Paso 3: Lados del rectángulo: (x + 2)(x + 9).'
+        ]
+      }
+    ];
+
+    /* =========================================================================
+       3. ESTADO GLOBAL DE LA APLICACIÓN
+       ========================================================================= */
+    const state = {
+      level: 1,
+      unlockedLevels: [1, 2, 3, 4],
+      colored: true,
+      isGiantFont: false,
+      activeFilter: null, // 'sign' | 'coeff' | 'var' | 'exp' | null
+      step: 0,
+      
+      // Índices de ejercicio activo
+      l1Idx: 0,
+      l2Idx: 0,
+      l3Idx: 0,
+      l4Idx: 0,
+      
+      // Estado específico de cada nivel
+      l1Mode: 'sum', // 'sum' | 'factors'
+      l1SelectedTerm: null,
+      
+      l2SelectedHeight: '',
+      l2TypedHeight: '',
+      l2UserWidths: {},
+      l2Solved: false,
+      
+      l3Gcd: null,
+      l3Vars: [],
+      l3Exps: {},
+      l3DivIdx: 0,
+      
+      l4Pair: null,
+      l4Solved: false,
+      
+      // Inspector flotante
+      inspector: null,
+      
+      // Ejercicios personalizados desde el Pizarrón Libre
+      custom: { 1: null, 2: null, 3: null, 4: null },
+      
+      // Modales
+      mirrorStep: 0,
+      isMirrorOpen: false,
+      isFreeBoardOpen: false,
+      isGuideOpen: false
+    };
+
+    /* =========================================================================
+       4. GETTERS DE EJERCICIO ACTUAL
+       ========================================================================= */
+    function getActiveExercise() {
+      if (state.level === 1) return state.custom[1] || LEVEL_1_DATA[state.l1Idx % LEVEL_1_DATA.length];
+      if (state.level === 2) return state.custom[2] || LEVEL_2_DATA[state.l2Idx % LEVEL_2_DATA.length];
+      if (state.level === 3) return state.custom[3] || LEVEL_3_DATA[state.l3Idx % LEVEL_3_DATA.length];
+      if (state.level === 4) return state.custom[4] || LEVEL_4_DATA[state.l4Idx % LEVEL_4_DATA.length];
+      return LEVEL_1_DATA[0];
+    }
+
+    /* =========================================================================
+       5. RENDERIZADO DEL ÁLGEBRA CON COLORES PEDAGÓGICOS
+       ========================================================================= */
+    function renderColoredExpressionHTML(terms, interactive = true) {
+      let filterClass = '';
+      if (state.activeFilter) filterClass = 'filter-' + state.activeFilter;
+      const giantClass = state.isGiantFont ? 'giant' : '';
+
+      let html = `<div class="math-expression ${giantClass} ${filterClass}">`;
+      terms.forEach((term, index) => {
+        const isFirst = index === 0;
+        const showSign = !isFirst || term.sign === '-';
+        const signSymbol = term.sign === '-' ? '−' : '+';
+
+        html += `<div class="term-token">`;
+        if (showSign) {
+          html += `<span class="token-sign" onclick="handleTokenClick('sign', '${signSymbol}', '${term.sign === '+' ? 'Signo positivo (+): Suma una cantidad o separa un nuevo término.' : 'Signo negativo (−): Indica una cantidad negativa o resta.'}')">${signSymbol}</span>`;
+        }
+        
+        const coeffDisplay = (term.coefficient === 1 && term.variables.length > 0) ? (state.colored ? '1' : '') : term.coefficient;
+        html += `<span class="token-coeff" onclick="handleTokenClick('coeff', '${term.coefficient}', 'Coeficiente ${term.coefficient}: Factor numérico grande que multiplica a la parte literal.')">${coeffDisplay}</span>`;
+
+        term.variables.forEach(v => {
+          html += `<span class="token-var" onclick="handleTokenClick('var', '${v.name}', 'Literal \"${v.name}\": Letra que representa una cantidad desconocida o variable.')">${v.name}</span>`;
+          if (v.exponent !== 1) {
+            html += `<span class="token-exp" onclick="handleTokenClick('exp', '${v.exponent}', 'Exponente ${v.exponent}: Potencia que indica cuántas veces se multiplica la base por sí misma.')">${toSuperscript(v.exponent)}</span>`;
+          } else if (state.colored) {
+            html += `<span class="token-exp" style="opacity:0.75" onclick="handleTokenClick('exp', '1', 'Exponente implícito 1: Toda variable sin potencia visible está elevada a la 1.')">¹</span>`;
+          }
+        });
+        html += `</div>`;
+      });
+      html += `</div>`;
+      return html;
+    }
+
+    /* =========================================================================
+       6. RENDERIZADO PRINCIPAL
+       ========================================================================= */
+    function render() {
+      // Sincronizar clase en el body para colores pedagógicos
+      document.body.className = state.colored ? 'colored' : '';
+
+      renderMain();
+      renderConsole();
+      renderModals();
+    }
+
+    function renderMain() {
+      const mainEl = document.getElementById('main-content');
+      const ex = getActiveExercise();
+
+      let html = '';
+
+      // 1. LEYENDA DEL CÓDIGO DE COLOR PEDAGÓGICO
+      html += `
+        <div class="legend-card">
+          <div class="legend-top">
+            <div class="legend-label-wrap">
+              <span class="pulse-dot"></span>
+              <span class="legend-title">Código de Color Pedagógico</span>
+              ${!state.colored ? '<span style="font-size:0.7rem; background:#FEF3C7; color:#92400E; padding:0.1rem 0.5rem; border-radius:9999px; font-weight:700;">Colores desactivados (Pulsa "Colorear")</span>' : ''}
+            </div>
+            <div style="font-size:0.75rem; color:#64748B;">
+              Toca una tarjeta para aislar ese componente:
+              ${state.activeFilter ? '<button type="button" onclick="setFilter(null)" style="background:#EFF6FF; color:#1D4ED8; border:none; padding:0.15rem 0.45rem; border-radius:0.35rem; font-weight:800; cursor:pointer; margin-left:0.35rem;">Mostrar todos ✕</button>' : ''}
+            </div>
+          </div>
+          <div class="legend-grid">
+            <div class="legend-item ${state.activeFilter === 'sign' ? 'active' : ''}" onclick="setFilter('sign')" style="${state.colored ? 'background:#FEF2F2; border-color:#FECACA; color:#DC2626;' : ''}">
+              <div class="legend-item-head">
+                <span class="legend-name">Signo (+ / −)</span>
+                <span class="legend-badge" style="${state.colored ? 'background:#DC2626; color:#FFFFFF;' : 'background:#CBD5E1;'}">+ / −</span>
+              </div>
+              <p class="legend-desc">Separa términos y define positivo o negativo</p>
+            </div>
+            <div class="legend-item ${state.activeFilter === 'coeff' ? 'active' : ''}" onclick="setFilter('coeff')" style="${state.colored ? 'background:#EFF6FF; border-color:#BFDBFE; color:#2563EB;' : ''}">
+              <div class="legend-item-head">
+                <span class="legend-name">Coeficiente</span>
+                <span class="legend-badge" style="${state.colored ? 'background:#2563EB; color:#FFFFFF;' : 'background:#CBD5E1;'}">6, 12, 4</span>
+              </div>
+              <p class="legend-desc">Número grande que multiplica a las letras</p>
+            </div>
+            <div class="legend-item ${state.activeFilter === 'var' ? 'active' : ''}" onclick="setFilter('var')" style="${state.colored ? 'background:#ECFDF5; border-color:#A7F3D0; color:#059669;' : ''}">
+              <div class="legend-item-head">
+                <span class="legend-name">Literal (Variable)</span>
+                <span class="legend-badge" style="${state.colored ? 'background:#059669; color:#FFFFFF;' : 'background:#CBD5E1;'}">x, y, a, b</span>
+              </div>
+              <p class="legend-desc">Letra o cantidad desconocida</p>
+            </div>
+            <div class="legend-item ${state.activeFilter === 'exp' ? 'active' : ''}" onclick="setFilter('exp')" style="${state.colored ? 'background:#F5F3FF; border-color:#DDD6FE; color:#7C3AED;' : ''}">
+              <div class="legend-item-head">
+                <span class="legend-name">Exponente (Potencia)</span>
+                <span class="legend-badge" style="${state.colored ? 'background:#7C3AED; color:#FFFFFF;' : 'background:#CBD5E1;'}">², ³, ⁴</span>
+              </div>
+              <p class="legend-desc">Número pequeño superior: veces que se multiplica</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 2. ENCABEZADO Y CONTENIDO POR NIVEL
+      if (state.level === 1) {
+        html += renderLevel1(ex);
+      } else if (state.level === 2) {
+        html += renderLevel2(ex);
+      } else if (state.level === 3) {
+        html += renderLevel3(ex);
+      } else if (state.level === 4) {
+        html += renderLevel4(ex);
+      }
+
+      // 3. PISTAS DE RAZONAMIENTO GUIADO (Si step > 0)
+      if (state.step > 0 && ex.steps) {
+        html += `
+          <div class="clues-box scale-up">
+            <div class="clues-header">
+              <h3 class="clues-title"><span>🧠</span> Pista de Razonamiento Guiado (Paso ${state.step} de ${ex.steps.length})</h3>
+              <span class="clues-badge">Control Docente</span>
+            </div>
+            <div class="clues-list">
+              ${ex.steps.slice(0, state.step).map((st, i) => `
+                <div class="clue-item">
+                  <span class="clue-num">${i + 1}</span>
+                  <span>${st}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      mainEl.innerHTML = html;
+    }
+
+    /* -------------------------------------------------------------------------
+       VISTA NIVEL 1: EL PUENTE (¿TÉRMINOS O FACTORES?)
+       ------------------------------------------------------------------------- */
+    function renderLevel1(ex) {
+      return `
+        <div class="level-banner">
+          <div>
+            <div class="level-tag" style="background:#EFF6FF; color:#1E3A8A;">Nivel 1 • El Puente Conceptual</div>
+            <h2 class="level-heading">¿Términos o Factores? La Transformación Fundamental</h2>
+            <p class="level-sub">Toca cada elemento de la expresión para ver su nombre algebraico o activa el interruptor de modo.</p>
+          </div>
+          <div class="mode-switch-wrap">
+            <button type="button" class="mode-switch-btn ${state.l1Mode === 'sum' ? 'active-sum' : ''}" onclick="setLevel1Mode('sum')">
+              ➕ Modo Suma de Términos
+            </button>
+            <button type="button" class="mode-switch-btn ${state.l1Mode === 'factors' ? 'active-factors' : ''}" onclick="setLevel1Mode('factors')">
+              ✖️ Modo Multiplicación (Factores)
+            </button>
+          </div>
+        </div>
+
+        <div class="blackboard-card">
+          <span class="blackboard-label">Expresión Algebraica Proyectada</span>
+          ${state.l1Mode === 'sum' ? `
+            <div class="math-expression-wrap">
+              ${renderColoredExpressionHTML(ex.terms)}
+              ${renderInspectorHTML()}
+            </div>
+            <div class="blocks-container">
+              ${ex.terms.map((t, idx) => `
+                ${idx > 0 ? `<span style="font-size:2.5rem; font-weight:900; color:#DC2626;">${t.sign === '+' ? '+' : '−'}</span>` : ''}
+                <div class="block-card ${state.l1SelectedTerm === t.id ? 'selected' : ''}" onclick="selectL1Term('${t.id}')">
+                  <span class="block-card-title">Término ${idx + 1}</span>
+                  <span class="block-card-term">${t.coefficient}${t.variables.map(v => v.name + toSuperscript(v.exponent)).join('')}</span>
+                  <span style="font-size:0.75rem; color:#64748B; margin-top:0.35rem; font-weight:600;">
+                    ${t.variables.length > 0 ? t.variables.map(v => v.name).join(', ') + ' con potencias' : 'Constante'}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+            <p style="font-size:0.85rem; color:#64748B; margin-top:1.25rem;">
+              En una suma, los bloques están <strong>separados</strong> por signos + o −. Cada uno es una cantidad independiente.
+            </p>
+          ` : `
+            <div class="scale-up" style="padding:1.5rem 0;">
+              <span style="font-size:0.8rem; font-weight:900; background:#F3E8FF; color:#6B21A8; padding:0.35rem 1rem; border-radius:9999px; display:inline-block; margin-bottom:1.25rem;">
+                ✨ Expresión Reempaquetada en Factores ✨
+              </span>
+              <div style="font-size:${state.isGiantFont ? '5rem' : '4rem'}; font-family:var(--font-mono); font-weight:900; color:#3B0764; margin:1rem 0; display:flex; align-items:center; justify-content:center; gap:0.5rem; flex-wrap:wrap;">
+                <span style="background:#F3E8FF; border:2px solid #D8B4FE; padding:0.35rem 1rem; border-radius:1rem; color:#6B21A8;">${ex.commonFactor}</span>
+                <span style="color:#94A3B8;">•</span>
+                <span style="background:#EEF2FF; border:2px solid #C7D2FE; padding:0.35rem 1rem; border-radius:1rem; color:#3730A3;">(${ex.parenthesisFactor})</span>
+              </div>
+              <div style="max-width:650px; margin:1.5rem auto 0; background:#FAF5FF; border:2px solid #E9D5FF; border-radius:1rem; padding:1.25rem; text-align:left;">
+                <h4 style="font-weight:800; color:#581C87; font-size:1rem; display:flex; align-items:center; gap:0.4rem; margin-bottom:0.35rem;">
+                  <span>💡</span> ¿Qué significa realmente factorizar?
+                </h4>
+                <p style="font-size:0.85rem; color:#6B21A8; line-height:1.5;">
+                  <strong>Factorizar es transformar una suma de términos en una multiplicación de factores equivalentes.</strong><br/>
+                  En lugar de calcular <strong>${ex.expression}</strong> por separado, hemos extraído el divisor común <strong>${ex.commonFactor}</strong> para multiplicar a <strong>(${ex.parenthesisFactor})</strong>.
+                </p>
+              </div>
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------------------------
+       VISTA NIVEL 2: EL ARQUITECTO DE ÁREAS (FACTOR COMÚN VISUAL)
+       ------------------------------------------------------------------------- */
+    function renderLevel2(ex) {
+      const activeHeight = state.l2TypedHeight.trim() || state.l2SelectedHeight;
+      return `
+        <div class="level-banner">
+          <div>
+            <div class="level-tag" style="background:#ECFDF5; color:#065F46;">Nivel 2 • El Arquitecto de Áreas</div>
+            <h2 class="level-heading">Factor Común como Altura y Base de un Rectángulo</h2>
+            <p class="level-sub">Área Total = Altura (Factor Común) × Base Total. ¿Cuáles son las dimensiones?</p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="action-btn" onclick="checkLevel2Answer()" style="background:#059669; color:#FFFFFF;">
+              <span>✔️</span> Verificar Dimensiones
+            </button>
+            <button type="button" class="action-btn" onclick="revealLevel2Solution()" style="background:#F1F5F9; color:#334155;">
+              Revelar
+            </button>
+          </div>
+        </div>
+
+        <div class="blackboard-card">
+          <div style="display:inline-block; background:#FFFFFF; border:1px solid #CBD5E1; padding:0.5rem 1.5rem; border-radius:1rem; margin-bottom:1.5rem;">
+            <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:#94A3B8; display:block;">Área total como suma de partes:</span>
+            <span style="font-size:2.25rem; font-weight:900; font-family:var(--font-mono); color:var(--navy-primary);">${ex.expression}</span>
+          </div>
+
+          <div class="area-blueprint">
+            <!-- Altura Común a la izquierda -->
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <span style="font-size:0.75rem; font-weight:900; text-transform:uppercase; color:#1E40AF; margin-bottom:0.5rem;">Altura Común</span>
+              <div class="area-height-box ${state.l2Solved ? 'solved' : ''}">
+                <span style="font-size:0.7rem; color:#94A3B8; font-weight:700; margin-bottom:0.25rem;">Altura =</span>
+                <input type="text" class="area-input" value="${activeHeight}" placeholder="[ ? ]" oninput="handleL2TypedHeight(this.value)" />
+              </div>
+              <div style="display:flex; gap:0.25rem; margin-top:0.5rem; max-width:120px; flex-wrap:wrap; justify-content:center;">
+                ${ex.heightOptions.map(opt => `
+                  <button type="button" onclick="selectL2Height('${opt}')" style="font-size:0.75rem; font-family:var(--font-mono); font-weight:800; padding:0.2rem 0.5rem; border-radius:0.4rem; border:1px solid #CBD5E1; cursor:pointer; background:${activeHeight === opt ? '#2563EB; color:#FFF;' : '#FFF;'}">${opt}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Secciones con bases superiores -->
+            <div class="area-sections-wrap">
+              <div class="area-top-widths">
+                ${ex.sections.map((sec, idx) => `
+                  <div class="area-top-col">
+                    <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:#64748B; margin-bottom:0.25rem;">Base ${idx + 1}</span>
+                    <input type="text" class="area-top-input" value="${state.l2UserWidths[sec.id] || ''}" placeholder="[ ? ]" oninput="handleL2WidthInput('${sec.id}', this.value)" />
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="area-rectangle-canvas">
+                ${ex.sections.map(sec => `
+                  <div class="area-subbox ${sec.cls}">
+                    <span class="area-subbox-label">Área Sección</span>
+                    <span class="area-subbox-val">${sec.termString}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          ${state.l2Solved ? `
+            <div class="success-banner">
+              <span class="success-badge">🎉 ¡Áreas y Dimensiones Comprobadas! 🎉</span>
+              <div class="success-equation">
+                <span style="background:#FFF; padding:0.25rem 0.85rem; border-radius:0.75rem; border:1px solid #BFDBFE; color:#1E3A8A;">${ex.expression}</span>
+                <span style="color:#059669;">=</span>
+                <span style="background:#FFF; padding:0.25rem 0.85rem; border-radius:0.75rem; border:1px solid #DDD6FE; color:#581C87;">${ex.factoredExpression}</span>
+              </div>
+              <p style="font-size:0.85rem; color:#065F46; max-width:600px; margin:0.5rem auto 0;">
+                Área total como suma de recuadros es exactamente igual al producto de la altura por la base: <strong>${ex.height} × (${ex.totalBase})</strong>.
+              </p>
+            </div>
+          ` : `
+            <p style="font-size:0.85rem; color:#64748B; margin-top:1rem;">
+              Pide al grupo que proponga la <strong>Altura Común</strong> y la <strong>Base</strong> de cada sección. Pulsa "Verificar Dimensiones" para validar.
+            </p>
+          `}
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------------------------
+       VISTA NIVEL 3: EL DETECTIVE DE COMPONENTES (FACTOR COMÚN MONOMIO)
+       ------------------------------------------------------------------------- */
+    function renderLevel3(ex) {
+      const isStation1Complete = (state.l3Gcd === ex.gcd);
+      const isStation2Complete = (ex.commonVariables.every(v => state.l3Vars.includes(v)) && state.l3Vars.length === ex.commonVariables.length);
+      const isStation3Complete = isStation2Complete && ex.commonVariables.every(v => state.l3Exps[v] === ex.variableMinExponents[v]);
+      const isFactorReady = isStation1Complete && isStation2Complete && isStation3Complete;
+
+      return `
+        <div class="level-banner">
+          <div>
+            <div class="level-tag" style="background:#F5F3FF; color:#581C87;">Nivel 3 • El Detective de Componentes</div>
+            <h2 class="level-heading">Extracción Sistemática del Factor Común Monomio</h2>
+            <p class="level-sub">Analiza por separado: Coeficientes (MCD) → Literales comunes → Menores exponentes.</p>
+          </div>
+          <button type="button" class="action-btn" onclick="revealLevel3Stations()" style="background:#EEF2FF; color:#3730A3; border:1px solid #C7D2FE;">
+            🔍 Resolver Estaciones con la Clase
+          </button>
+        </div>
+
+        <div class="blackboard-card">
+          <span class="blackboard-label">Polinomio en Inspección</span>
+          <div class="math-expression-wrap">
+            ${renderColoredExpressionHTML(ex.terms)}
+          </div>
+        </div>
+
+        <!-- 3 ESTACIONES DE INSPECCIÓN -->
+        <div class="stations-grid">
+          <!-- Estación 1: Coeficientes y MCD -->
+          <div class="station-card ${isStation1Complete ? 'complete' : ''}">
+            <div class="station-head">
+              <span class="station-pill" style="background:#DBEAFE; color:#1E40AF;">Estación 1</span>
+              <span class="station-status" style="color:${isStation1Complete ? '#059669' : '#64748B'};">${isStation1Complete ? '✓ Completada' : 'Inspeccionando'}</span>
+            </div>
+            <h3 class="station-title">Coeficientes y MCD</h3>
+            <p class="station-desc">Números: <strong style="color:#2563EB; font-family:var(--font-mono);">${ex.coefficients.join(', ')}</strong>. ¿Cuál es su Máximo Común Divisor (MCD)?</p>
+            <div class="btn-row">
+              ${ex.gcdOptions.map(opt => `
+                <button type="button" class="opt-btn ${state.l3Gcd === opt ? 'selected' : ''}" onclick="selectL3Gcd(${opt})">${opt}</button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Estación 2: Literales Comunes -->
+          <div class="station-card ${isStation2Complete ? 'complete' : ''}">
+            <div class="station-head">
+              <span class="station-pill" style="background:#D1FAE5; color:#065F46;">Estación 2</span>
+              <span class="station-status" style="color:${isStation2Complete ? '#059669' : '#64748B'};">${isStation2Complete ? '✓ Completada' : 'Inspeccionando'}</span>
+            </div>
+            <h3 class="station-title">Literales Comunes</h3>
+            <p class="station-desc">Haz clic en las letras que aparecen en <strong>TODOS</strong> los términos sin excepción:</p>
+            <div class="btn-row">
+              ${ex.allVariables.map(v => {
+                const isSel = state.l3Vars.includes(v);
+                return `<button type="button" class="opt-btn ${isSel ? 'selected-green' : ''}" onclick="toggleL3Var('${v}')">${v} ${isSel ? '✓' : ''}</button>`;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Estación 3: Menores Exponentes -->
+          <div class="station-card ${isStation3Complete ? 'complete' : ''}">
+            <div class="station-head">
+              <span class="station-pill" style="background:#F3E8FF; color:#6B21A8;">Estación 3</span>
+              <span class="station-status" style="color:${isStation3Complete ? '#059669' : '#64748B'};">${isStation3Complete ? '✓ Completada' : 'Inspeccionando'}</span>
+            </div>
+            <h3 class="station-title">Menores Exponentes</h3>
+            <p class="station-desc">Elige la potencia más pequeña de cada letra común:</p>
+            <div style="display:flex; flex-direction:column; gap:0.4rem;">
+              ${ex.commonVariables.map(v => `
+                <div style="display:flex; align-items:center; justify-content:space-between; background:#F8FAFC; padding:0.35rem 0.65rem; border-radius:0.5rem;">
+                  <span style="font-family:var(--font-mono); font-weight:800; font-size:0.85rem; color:#065F46;">Variable ${v}:</span>
+                  <div style="display:flex; gap:0.25rem;">
+                    ${[1, 2, 3, 4].map(expNum => `
+                      <button type="button" onclick="selectL3Exp('${v}', ${expNum})" style="width:1.75rem; height:1.75rem; border-radius:0.4rem; border:1px solid #CBD5E1; font-weight:800; font-family:var(--font-mono); font-size:0.8rem; cursor:pointer; background:${state.l3Exps[v] === expNum ? '#7C3AED; color:#FFF;' : '#FFF;'}">
+                        ${toSuperscript(expNum) || expNum}
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- FACTOR COMÚN ENSAMBLADO Y DIVISIÓN TÉRMINO A TÉRMINO -->
+        <div class="common-factor-assembled">
+          <span class="assembled-badge">${isFactorReady ? '✨ Factor Común Ensamblado con Éxito ✨' : 'Ensamblaje del Factor Común Monomio'}</span>
+          <div>
+            ${isFactorReady ? `
+              <span class="assembled-expr scale-up">${ex.commonFactorString}</span>
+            ` : `
+              <span class="assembled-expr empty">[ Completa las 3 estaciones ]</span>
+            `}
+          </div>
+
+          ${isFactorReady ? `
+            <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.2); max-width:650px; margin-left:auto; margin-right:auto;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+                <span style="font-size:0.85rem; font-weight:700; color:#C7D2FE;">División de cada término entre ${ex.commonFactorString}:</span>
+                <button type="button" class="action-btn" onclick="nextL3Division()" style="background:var(--amber-gold); color:#000;">
+                  ${state.l3DivIdx >= ex.quotients.length ? 'Términos Divididos' : 'Dividir Siguiente Término ➡️'}
+                </button>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                ${ex.quotients.slice(0, state.l3DivIdx).map(q => `
+                  <div class="scale-up" style="background:rgba(255,255,255,0.12); padding:0.65rem 1rem; border-radius:0.75rem; display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:1.15rem;">
+                    <span>(${q.original}) ÷ <strong style="color:var(--amber-gold);">${ex.commonFactorString}</strong></span>
+                    <strong style="color:var(--amber-gold);">= ${q.divided}</strong>
+                  </div>
+                `).join('')}
+              </div>
+
+              ${state.l3DivIdx >= ex.quotients.length ? `
+                <div class="scale-up" style="margin-top:1.25rem; background:rgba(16, 185, 129, 0.2); border:2px solid #34D399; border-radius:1rem; padding:1rem; text-align:center;">
+                  <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#6EE7B7; display:block; margin-bottom:0.25rem;">Resultado Final Factorizado:</span>
+                  <span style="font-size:2.25rem; font-weight:900; font-family:var(--font-mono); color:#FFFFFF;">${ex.factoredExpression}</span>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------------------------
+       VISTA NIVEL 4: EL ROMPECABEZAS CUADRÁTICO (CUADRÍCULA 2X2)
+       ------------------------------------------------------------------------- */
+    function renderLevel4(ex) {
+      const activeM = state.l4Pair ? state.l4Pair.m : null;
+      const activeN = state.l4Pair ? state.l4Pair.n : null;
+
+      return `
+        <div class="level-banner">
+          <div>
+            <div class="level-tag" style="background:#FFF1F2; color:#9F1239;">Nivel 4 • El Rompecabezas Cuadrático</div>
+            <h2 class="level-heading">Factorización de Trinomios con Cuadrícula 2×2</h2>
+            <p class="level-sub">Modelo geométrico para expresiones de la forma x² + bx + c.</p>
+          </div>
+          <button type="button" class="action-btn" onclick="revealLevel4Solution()" style="background:#EEF2FF; color:#3730A3; border:1px solid #C7D2FE;">
+            🧩 Revelar Par Ganador
+          </button>
+        </div>
+
+        <div class="blackboard-card">
+          <span class="blackboard-label">Trinomio Cuadrático a Factorizar</span>
+          <div style="font-size:${state.isGiantFont ? '4.75rem' : '3.5rem'}; font-family:var(--font-mono); font-weight:900; color:var(--navy-primary); line-height:1.2;">
+            ${state.colored ? `
+              <span>x²</span>
+              <span style="color:var(--color-sign); font-weight:900;">+</span>
+              <span style="color:var(--color-coeff);">${ex.b}</span><span style="color:var(--color-var); font-style:italic;">x</span>
+              <span style="color:var(--color-sign); font-weight:900;">+</span>
+              <span style="color:var(--color-coeff);">${ex.c}</span>
+            ` : ex.expression}
+          </div>
+        </div>
+
+        <div class="grid-2x2-layout">
+          <!-- Columna Izquierda: Buscador de factores -->
+          <div class="pairs-column">
+            <div class="puzzle-target-box">
+              <span style="font-size:0.75rem; font-weight:900; text-transform:uppercase; display:block; margin-bottom:0.25rem;">🔎 El Acertijo del Trinomio:</span>
+              <p style="font-size:0.85rem; font-weight:600;">Buscamos dos números <strong>m</strong> y <strong>n</strong> tales que:</p>
+              <div style="margin-top:0.4rem; font-family:var(--font-mono); font-size:0.85rem; background:#FFF; padding:0.4rem 0.65rem; border-radius:0.5rem; border:1px solid #FDE68A;">
+                <div style="display:flex; justify-content:space-between;"><span>Multiplicados den c:</span><strong style="color:#2563EB;">m × n = ${ex.c}</strong></div>
+                <div style="display:flex; justify-content:space-between;"><span>Sumados den b:</span><strong style="color:#059669;">m + n = ${ex.b}</strong></div>
+              </div>
+            </div>
+
+            <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#64748B; display:block; margin-bottom:0.5rem;">Prueba de Pares de Factores de ${ex.c}:</span>
+            ${ex.factorPairs.map((pair, idx) => {
+              const isSelected = state.l4Pair && (state.l4Pair.m === pair.m && state.l4Pair.n === pair.n);
+              const isWin = isSelected && pair.isCorrect;
+              return `
+                <button type="button" class="puzzle-pair-btn ${isSelected ? (pair.isCorrect ? 'active' : 'active-wrong') : ''}" onclick="selectL4Pair(${pair.m}, ${pair.n})">
+                  <div style="display:flex; align-items:center; gap:0.65rem;">
+                    <span style="width:1.75rem; height:1.75rem; border-radius:0.5rem; background:#FFF; border:1px solid #CBD5E1; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:800; font-size:0.75rem;">#${idx + 1}</span>
+                    <div>
+                      <div style="font-family:var(--font-mono); font-weight:900; font-size:1rem; color:#0F172A;">${pair.m} y ${pair.n}</div>
+                      <div style="font-size:0.7rem; color:#64748B;">${pair.m} × ${pair.n} = ${pair.product}</div>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <span style="font-size:0.7rem; color:#64748B; display:block;">Suma: ${pair.m} + ${pair.n} =</span>
+                    <span style="font-family:var(--font-mono); font-weight:800; font-size:0.85rem; padding:0.15rem 0.5rem; border-radius:0.35rem; background:${pair.sum === ex.b ? '#A7F3D0; color:#065F46;' : '#E2E8F0; color:#334155;'}">
+                      ${pair.sum} ${pair.sum === ex.b ? '✔ (¡Da ' + ex.b + '!)' : '✗'}
+                    </span>
+                  </div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Columna Derecha: Cuadrícula 2x2 Geométrica -->
+          <div class="grid-2x2-board">
+            <span style="font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#94A3B8; margin-bottom:0.75rem;">Cuadrícula Geométrica 2×2 de Áreas</span>
+            
+            <div class="grid-2x2-outer-top">
+              Lado Superior = x + ${activeN !== null ? activeN : 'n [ ? ]'}
+            </div>
+
+            <div class="grid-2x2-mid-wrap">
+              <div class="grid-2x2-outer-left">
+                Lado Izquierdo = x + ${activeM !== null ? activeM : 'm [ ? ]'}
+              </div>
+
+              <div class="grid-2x2-boxes">
+                <!-- Esquina Sup-Izq: x² -->
+                <div class="grid-cell cell-top-left">
+                  <span class="cell-tag">Esquina Sup-Izq</span>
+                  <span class="cell-val">x²</span>
+                  <span style="font-size:0.65rem; color:#3B82F6;">x · x</span>
+                </div>
+
+                <!-- Esquina Sup-Der: nx -->
+                <div class="grid-cell cell-top-right ${state.l4Solved ? 'cell-solved' : ''}">
+                  <span class="cell-tag">Esquina Sup-Der</span>
+                  <span class="cell-val">${activeN !== null ? `${activeN}x` : '[ ? ]'}</span>
+                  <span style="font-size:0.65rem;">${activeN !== null ? `${activeN} · x` : 'n · x'}</span>
+                </div>
+
+                <!-- Esquina Inf-Izq: mx -->
+                <div class="grid-cell cell-bot-left ${state.l4Solved ? 'cell-solved' : ''}">
+                  <span class="cell-tag">Esquina Inf-Izq</span>
+                  <span class="cell-val">${activeM !== null ? `${activeM}x` : '[ ? ]'}</span>
+                  <span style="font-size:0.65rem;">${activeM !== null ? `${activeM} · x` : 'm · x'}</span>
+                </div>
+
+                <!-- Esquina Inf-Der: c -->
+                <div class="grid-cell cell-bot-right">
+                  <span class="cell-tag">Esquina Inf-Der</span>
+                  <span class="cell-val">${ex.c}</span>
+                  <span style="font-size:0.65rem; color:#7C3AED;">${activeM !== null && activeN !== null ? `${activeM} · ${activeN}` : 'm · n'}</span>
+                </div>
+              </div>
+            </div>
+
+            ${state.l4Solved ? `
+              <div class="success-banner" style="width:100%; max-width:440px;">
+                <span class="success-badge">🎉 ¡Rompecabezas Cuadrático Resuelto! 🎉</span>
+                <div style="font-size:2.25rem; font-weight:900; font-family:var(--font-mono); color:#064E3B; margin:0.35rem 0;">
+                  ${ex.factoredExpression}
+                </div>
+                <p style="font-size:0.75rem; color:#047857;">
+                  Términos cruzados <strong>${activeM}x + ${activeN}x = ${ex.b}x</strong> y números <strong>${activeM} × ${activeN} = ${ex.c}</strong>.
+                </p>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------------------------
+       INSPECTOR FLOTANTE DE COMPONENTES
+       ------------------------------------------------------------------------- */
+    function renderInspectorHTML() {
+      if (!state.inspector) return '';
+      return `
+        <div class="inspector-card">
+          <div class="inspector-icon">🔍</div>
+          <div class="inspector-body">
+            <div class="inspector-head">
+              <span class="inspector-title">${state.inspector.label}: <strong>${state.inspector.value}</strong></span>
+              <button type="button" onclick="closeInspector()" style="background:#334155; color:#FFF; border:none; padding:0.15rem 0.45rem; border-radius:0.35rem; font-size:0.7rem; cursor:pointer;">Cerrar ✕</button>
+            </div>
+            <p class="inspector-text">${state.inspector.desc}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------------------------
+       7. RENDERIZADO DE LA CONSOLA DOCENTE INFERIOR
+       ------------------------------------------------------------------------- */
+    function renderConsole() {
+      const consoleEl = document.getElementById('console-content');
+      const ex = getActiveExercise();
+      const totalSteps = ex.steps ? ex.steps.length : 4;
+
+      const levelsMeta = [
+        { num: 1, label: 'Nivel 1' },
+        { num: 2, label: 'Nivel 2' },
+        { num: 3, label: 'Nivel 3' },
+        { num: 4, label: 'Nivel 4' }
+      ];
+
+      consoleEl.innerHTML = `
+        <!-- Selector de Nivel -->
+        <div class="level-selector-row">
+          <span class="console-section-title">🎓 Nivel:</span>
+          ${levelsMeta.map(lvl => {
+            const isActive = state.level === lvl.num;
+            const isUnlocked = state.unlockedLevels.includes(lvl.num);
+            return `
+              <div style="display:inline-flex; align-items:center;">
+                <button type="button" class="level-chip ${isActive ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}" onclick="selectLevel(${lvl.num})">
+                  <span>${lvl.label}</span>
+                  ${!isUnlocked ? '<span style="font-size:0.65rem;">🔒</span>' : ''}
+                </button>
+                <button type="button" class="lock-toggle-btn" onclick="toggleLockLevel(${lvl.num})" title="${isUnlocked ? 'Bloquear para el grupo' : 'Desbloquear'}">
+                  ${isUnlocked ? '🔓' : '🔒'}
+                </button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- Botones de Acción Didáctica -->
+        <div class="console-controls-row">
+          <button type="button" class="action-btn btn-new-exercise" onclick="nextRandomExercise()" title="Generar otro ejercicio de este mismo nivel">
+            <span>🎲</span> Nuevo Ejercicio
+          </button>
+          
+          <button type="button" class="action-btn btn-color-toggle ${!state.colored ? 'off' : ''}" onclick="toggleColored()" title="Alternar código de color pedagógico">
+            <span>🎨</span> Colorear: ${state.colored ? 'SÍ (ON)' : 'NO (OFF)'}
+          </button>
+
+          <div class="btn-step-group">
+            <button type="button" class="btn-step" onclick="nextStep()" title="Revela la siguiente pista guiada">
+              <span>💡</span> Siguiente Paso / Pista <span style="font-family:var(--font-mono); margin-left:0.25rem;">${state.step}/${totalSteps}</span>
+            </button>
+            ${state.step > 0 ? `
+              <button type="button" class="btn-step-reset" onclick="resetSteps()" title="Reiniciar pistas">↺</button>
+            ` : ''}
+          </div>
+
+          <button type="button" class="action-btn btn-mirror" onclick="openMirrorModal()" title="Verificar con la propiedad distributiva">
+            <span>🪞</span> Prueba del Espejo
+          </button>
+
+          <button type="button" class="action-btn btn-freeboard" onclick="openFreeBoardModal()" title="Escribir un ejercicio propio en el pizarrón">
+            <span>✍️</span> Pizarrón Libre
+          </button>
+
+          <button type="button" class="btn-font-scale ${state.isGiantFont ? 'active' : ''}" onclick="toggleGiantFont()" title="Tamaño gigante para proyector">
+            A+
+          </button>
+        </div>
+      `;
+    }
+
+    /* -------------------------------------------------------------------------
+       8. MODALES (PRUEBA DEL ESPEJO, PIZARRÓN LIBRE, GUÍA DIDÁCTICA)
+       ------------------------------------------------------------------------- */
+    function renderModals() {
+      const modalRoot = document.getElementById('modal-root');
+      const ex = getActiveExercise();
+
+      let html = '';
+
+      // Modal: Prueba del Espejo
+      if (state.isMirrorOpen) {
+        html += `
+          <div class="modal-overlay" onclick="closeMirrorModal(event)">
+            <div class="modal-box" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:1.5rem;">🪞</span>
+                  <h3 class="modal-title">Prueba del Espejo (Comprobación Distributiva)</h3>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeMirrorModal()">✕</button>
+              </div>
+
+              <p style="font-size:0.85rem; color:#475569; margin-bottom:1rem;">
+                La <strong>factorización</strong> y la <strong>multiplicación algebraica</strong> son operaciones inversas.
+                Si multiplicamos los factores obtenidos, debemos regresar con exactitud a la expresión original.
+              </p>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+                <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:1rem; border-radius:0.85rem; text-align:center;">
+                  <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:#1E40AF; display:block;">1. Factores Multiplicados</span>
+                  <span style="font-size:1.75rem; font-family:var(--font-mono); font-weight:900; color:#1E3A8A; margin:0.35rem 0; display:block;">${ex.factoredExpression}</span>
+                </div>
+                <div style="background:#ECFDF5; border:1px solid #A7F3D0; padding:1rem; border-radius:0.85rem; text-align:center;">
+                  <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:#065F46; display:block;">2. Expresión Inicial (Suma)</span>
+                  <span style="font-size:1.75rem; font-family:var(--font-mono); font-weight:900; color:#064E3B; margin:0.35rem 0; display:block;">${ex.expression}</span>
+                </div>
+              </div>
+
+              <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:0.85rem; padding:1rem; margin-bottom:1.25rem;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+                  <span style="font-weight:800; font-size:0.9rem; color:#0F172A;">🔄 Desglose de la Propiedad Distributiva:</span>
+                  <span style="font-size:0.75rem; font-weight:800; background:#E2E8F0; padding:0.15rem 0.5rem; border-radius:9999px;">Paso ${state.mirrorStep} de 3</span>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:0.5rem; font-family:var(--font-mono); font-size:0.95rem;">
+                  ${state.mirrorStep >= 1 ? `
+                    <div class="scale-up" style="background:#FFF; padding:0.65rem 0.85rem; border-radius:0.5rem; border:1px solid #E2E8F0; display:flex; justify-content:space-between;">
+                      <span style="color:#64748B;">Multiplicar primer término:</span>
+                      <strong style="color:#2563EB;">Factor exterior × 1er término</strong>
+                    </div>
+                  ` : ''}
+                  ${state.mirrorStep >= 2 ? `
+                    <div class="scale-up" style="background:#FFF; padding:0.65rem 0.85rem; border-radius:0.5rem; border:1px solid #E2E8F0; display:flex; justify-content:space-between;">
+                      <span style="color:#64748B;">Multiplicar segundo término:</span>
+                      <strong style="color:#059669;">Factor exterior × 2do término</strong>
+                    </div>
+                  ` : ''}
+                  ${state.mirrorStep >= 3 ? `
+                    <div class="scale-up" style="background:#D1FAE5; padding:0.75rem 1rem; border-radius:0.5rem; border:1px solid #6EE7B7; display:flex; justify-content:space-between; align-items:center;">
+                      <span style="color:#065F46; font-weight:800;">¡Comprobación exitosa! Suma =</span>
+                      <strong style="font-size:1.35rem; color:#064E3B;">= ${ex.expression} ✔</strong>
+                    </div>
+                  ` : ''}
+                  ${state.mirrorStep === 0 ? `
+                    <p style="font-family:var(--font-family); font-size:0.85rem; color:#64748B; text-align:center; padding:1rem 0;">
+                      Presiona el botón verde <strong>"Avanzar Multiplicación"</strong> para guiar la comprobación en el pizarrón.
+                    </p>
+                  ` : ''}
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.75rem;">
+                  ${state.mirrorStep < 3 ? `
+                    <button type="button" class="action-btn" onclick="nextMirrorStep()" style="background:#059669; color:#FFF;">Avanzar Multiplicación ▶</button>
+                  ` : `
+                    <button type="button" class="action-btn" onclick="resetMirrorStep()" style="background:#E2E8F0; color:#334155;">Reiniciar ↺</button>
+                  `}
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end;">
+                <button type="button" class="action-btn" onclick="closeMirrorModal()" style="background:var(--navy-primary); color:#FFF;">Entendido, volver a la clase</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Modal: Pizarrón Libre
+      if (state.isFreeBoardOpen) {
+        html += `
+          <div class="modal-overlay" onclick="closeFreeBoardModal(event)">
+            <div class="modal-box" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:1.5rem;">✍️</span>
+                  <div>
+                    <h3 class="modal-title">Modo Pizarrón Libre (Profesor)</h3>
+                    <p style="font-size:0.75rem; color:#64748B;">Configura un ejercicio personalizado para el <strong>Nivel ${state.level}</strong></p>
+                  </div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeFreeBoardModal()">✕</button>
+              </div>
+
+              <form onsubmit="handleApplyFreeBoard(event)" style="display:flex; flex-direction:column; gap:1rem;">
+                ${state.level === 1 ? `
+                  <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:0.75rem; padding:1rem;">
+                    <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#475569; display:block; margin-bottom:0.5rem;">Términos para Nivel 1:</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Término 1:</label>
+                        <input type="text" id="fb-l1-t1" value="10x²" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Término 2:</label>
+                        <input type="text" id="fb-l1-t2" value="+15x" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.75rem;">
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Factor común exterior:</label>
+                        <input type="text" id="fb-l1-fc" value="5x" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Interior del paréntesis:</label>
+                        <input type="text" id="fb-l1-par" value="2x + 3" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${state.level === 2 ? `
+                  <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:0.75rem; padding:1rem;">
+                    <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#475569; display:block; margin-bottom:0.5rem;">Rectángulo para Nivel 2:</span>
+                    <div style="margin-bottom:0.75rem;">
+                      <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Altura común (Factor Común):</label>
+                      <input type="text" id="fb-l2-h" value="5" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Área 1 y Base 1:</label>
+                        <input type="text" id="fb-l2-a1" value="5x" placeholder="Área" style="width:48%; padding:0.35rem 0.5rem; font-family:var(--font-mono); font-weight:800; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                        <input type="text" id="fb-l2-b1" value="x" placeholder="Base" style="width:48%; padding:0.35rem 0.5rem; font-family:var(--font-mono); font-weight:800; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Área 2 y Base 2:</label>
+                        <input type="text" id="fb-l2-a2" value="20" placeholder="Área" style="width:48%; padding:0.35rem 0.5rem; font-family:var(--font-mono); font-weight:800; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                        <input type="text" id="fb-l2-b2" value="4" placeholder="Base" style="width:48%; padding:0.35rem 0.5rem; font-family:var(--font-mono); font-weight:800; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${state.level === 3 ? `
+                  <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:0.75rem; padding:1rem;">
+                    <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#475569; display:block; margin-bottom:0.5rem;">Polinomio para Nivel 3:</span>
+                    <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Polinomio con 2 o 3 términos:</label>
+                    <input type="text" id="fb-l3-poly" value="12x³y² - 18x²y + 6xy" style="width:100%; padding:0.5rem 0.75rem; font-family:var(--font-mono); font-weight:800; font-size:1.15rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                  </div>
+                ` : ''}
+
+                ${state.level === 4 ? `
+                  <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:0.75rem; padding:1rem;">
+                    <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#475569; display:block; margin-bottom:0.5rem;">Trinomio x² + bx + c:</span>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Coeficiente b (lineal):</label>
+                        <input type="number" id="fb-l4-b" value="8" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1.25rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                      <div>
+                        <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:0.25rem;">Constante c:</label>
+                        <input type="number" id="fb-l4-c" value="12" style="width:100%; padding:0.4rem 0.65rem; font-family:var(--font-mono); font-weight:800; font-size:1.25rem; border:1px solid #CBD5E1; border-radius:0.5rem;" required />
+                      </div>
+                    </div>
+                  </div>
+                ` : ''}
+
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
+                  <button type="button" class="action-btn" onclick="closeFreeBoardModal()" style="background:#F1F5F9; color:#475569;">Cancelar</button>
+                  <button type="submit" class="action-btn" style="background:var(--navy-primary); color:#FFF;">Cargar Ejercicio en Pantalla</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      }
+
+      // Modal: Guía Didáctica
+      if (state.isGuideOpen) {
+        html += `
+          <div class="modal-overlay" onclick="closeGuideModal(event)">
+            <div class="modal-box" onclick="event.stopPropagation()">
+              <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:1.5rem;">📖</span>
+                  <h3 class="modal-title">Guía Didáctica para el Salón de Clases</h3>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeGuideModal()">✕</button>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:0.85rem; font-size:0.85rem; color:#334155;">
+                <div style="background:#FEF3C7; border:1px solid #FDE68A; padding:0.85rem; border-radius:0.75rem; color:#78350F;">
+                  <strong style="display:block; margin-bottom:0.2rem;">🎯 Objetivo Didáctico:</strong>
+                  Superar el obstáculo común donde los alumnos memorizan fórmulas mecánicamente.
+                  FactorizaLab conecta la descomposición visual con el significado geométrico y la reversibilidad algebraica.
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
+                  <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:0.75rem; border-radius:0.65rem;">
+                    <strong style="color:var(--navy-primary);">Nivel 1 (El Puente):</strong>
+                    <p style="font-size:0.75rem; color:#64748B; margin-top:0.2rem;">Distinguir términos aislados vs factores multiplicados.</p>
+                  </div>
+                  <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:0.75rem; border-radius:0.65rem;">
+                    <strong style="color:var(--navy-primary);">Nivel 2 (Áreas):</strong>
+                    <p style="font-size:0.75rem; color:#64748B; margin-top:0.2rem;">Encontrar la altura común y las bases parciales del rectángulo.</p>
+                  </div>
+                  <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:0.75rem; border-radius:0.65rem;">
+                    <strong style="color:var(--navy-primary);">Nivel 3 (Detective):</strong>
+                    <p style="font-size:0.75rem; color:#64748B; margin-top:0.2rem;">Sistematizar coeficientes (MCD), literales y menores exponentes.</p>
+                  </div>
+                  <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:0.75rem; border-radius:0.65rem;">
+                    <strong style="color:var(--navy-primary);">Nivel 4 (Cuadrícula 2×2):</strong>
+                    <p style="font-size:0.75rem; color:#64748B; margin-top:0.2rem;">Factorizar trinomios x² + bx + c resolviendo m×n=c y m+n=b.</p>
+                  </div>
+                </div>
+
+                <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:0.85rem; border-radius:0.75rem; color:#1E40AF;">
+                  <strong style="display:block; margin-bottom:0.2rem;">💡 Consejos para Proyección en Salón con Luz Ambiental:</strong>
+                  <ul style="padding-left:1.25rem; font-size:0.8rem; display:flex; flex-direction:column; gap:0.2rem;">
+                    <li>Mantén activado el botón <strong>"Colorear: SÍ"</strong> para máximo contraste pedagógico.</li>
+                    <li>Utiliza el botón <strong>A+</strong> para proyectar las expresiones en más de 4.5rem.</li>
+                    <li>Usa la <strong>"Prueba del Espejo"</strong> para cerrar cada ejercicio comprobando la reversibilidad.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; margin-top:1.25rem;">
+                <button type="button" class="action-btn" onclick="closeGuideModal()" style="background:var(--navy-primary); color:#FFF;">Cerrar Guía</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      modalRoot.innerHTML = html;
+    }
+
+    /* =========================================================================
+       9. MANEJADORES DE EVENTOS E INTERACCIÓN
+       ========================================================================= */
+    function setFilter(filterType) {
+      state.activeFilter = (state.activeFilter === filterType) ? null : filterType;
+      render();
+    }
+
+    function handleTokenClick(type, val, explanation) {
+      const labels = {
+        sign: 'Signo de operación',
+        coeff: 'Coeficiente Numérico',
+        var: 'Literal o Variable',
+        exp: 'Exponente o Potencia'
+      };
+      state.inspector = {
+        type,
+        label: labels[type] || 'Componente',
+        value: val,
+        desc: explanation
+      };
+      render();
+    }
+
+    function closeInspector() {
+      state.inspector = null;
+      render();
+    }
+
+    function selectLevel(lvl) {
+      if (!state.unlockedLevels.includes(lvl)) {
+        state.unlockedLevels.push(lvl);
+      }
+      state.level = lvl;
+      state.step = 0;
+      state.inspector = null;
+      render();
+    }
+
+    function toggleLockLevel(lvl) {
+      if (state.unlockedLevels.includes(lvl)) {
+        state.unlockedLevels = state.unlockedLevels.filter(l => l !== lvl);
+      } else {
+        state.unlockedLevels.push(lvl);
+      }
+      render();
+    }
+
+    function toggleColored() {
+      state.colored = !state.colored;
+      render();
+    }
+
+    function toggleGiantFont() {
+      state.isGiantFont = !state.isGiantFont;
+      render();
+    }
+
+    function nextStep() {
+      const ex = getActiveExercise();
+      const maxSteps = ex.steps ? ex.steps.length : 4;
+      state.step = Math.min(state.step + 1, maxSteps);
+      render();
+    }
+
+    function resetSteps() {
+      state.step = 0;
+      render();
+    }
+
+    function nextRandomExercise() {
+      state.step = 0;
+      state.inspector = null;
+      if (state.level === 1) {
+        state.custom[1] = null;
+        state.l1Idx = (state.l1Idx + 1) % LEVEL_1_DATA.length;
+        state.l1SelectedTerm = null;
+      } else if (state.level === 2) {
+        state.custom[2] = null;
+        state.l2Idx = (state.l2Idx + 1) % LEVEL_2_DATA.length;
+        state.l2SelectedHeight = '';
+        state.l2TypedHeight = '';
+        state.l2UserWidths = {};
+        state.l2Solved = false;
+      } else if (state.level === 3) {
+        state.custom[3] = null;
+        state.l3Idx = (state.l3Idx + 1) % LEVEL_3_DATA.length;
+        state.l3Gcd = null;
+        state.l3Vars = [];
+        state.l3Exps = {};
+        state.l3DivIdx = 0;
+      } else if (state.level === 4) {
+        state.custom[4] = null;
+        state.l4Idx = (state.l4Idx + 1) % LEVEL_4_DATA.length;
+        state.l4Pair = null;
+        state.l4Solved = false;
+      }
+      render();
+    }
+
+    // Nivel 1
+    function setLevel1Mode(mode) {
+      state.l1Mode = mode;
+      render();
+    }
+    function selectL1Term(id) {
+      state.l1SelectedTerm = (state.l1SelectedTerm === id) ? null : id;
+      render();
+    }
+
+    // Nivel 2
+    function selectL2Height(val) {
+      state.l2SelectedHeight = val;
+      state.l2TypedHeight = '';
+      render();
+    }
+    function handleL2TypedHeight(val) {
+      state.l2TypedHeight = val;
+      state.l2SelectedHeight = '';
+    }
+    function handleL2WidthInput(id, val) {
+      state.l2UserWidths[id] = val;
+    }
+    function checkLevel2Answer() {
+      const ex = getActiveExercise();
+      const activeH = (state.l2TypedHeight.trim() || state.l2SelectedHeight).toLowerCase().replace(/\s+/g, '');
+      const targetH = ex.height.toLowerCase().replace(/\s+/g, '');
+      const isHCorrect = activeH === targetH;
+      const areWidthsCorrect = ex.sections.every(sec => {
+        const userW = (state.l2UserWidths[sec.id] || '').toLowerCase().replace(/\s+/g, '');
+        return userW === sec.widthValue.toLowerCase().replace(/\s+/g, '');
+      });
+      state.l2Solved = (isHCorrect && areWidthsCorrect);
+      render();
+    }
+    function revealLevel2Solution() {
+      const ex = getActiveExercise();
+      state.l2SelectedHeight = ex.height;
+      state.l2TypedHeight = '';
+      ex.sections.forEach(sec => {
+        state.l2UserWidths[sec.id] = sec.widthValue;
+      });
+      state.l2Solved = true;
+      render();
+    }
+
+    // Nivel 3
+    function selectL3Gcd(num) {
+      state.l3Gcd = num;
+      render();
+    }
+    function toggleL3Var(v) {
+      if (state.l3Vars.includes(v)) {
+        state.l3Vars = state.l3Vars.filter(x => x !== v);
+      } else {
+        state.l3Vars.push(v);
+      }
+      render();
+    }
+    function selectL3Exp(v, exp) {
+      state.l3Exps[v] = exp;
+      render();
+    }
+    function revealLevel3Stations() {
+      const ex = getActiveExercise();
+      state.l3Gcd = ex.gcd;
+      state.l3Vars = [...ex.commonVariables];
+      state.l3Exps = { ...ex.variableMinExponents };
+      state.l3DivIdx = ex.quotients.length;
+      render();
+    }
+    function nextL3Division() {
+      const ex = getActiveExercise();
+      state.l3DivIdx = Math.min(state.l3DivIdx + 1, ex.quotients.length);
+      render();
+    }
+
+    // Nivel 4
+    function selectL4Pair(m, n) {
+      const ex = getActiveExercise();
+      const pair = ex.factorPairs.find(p => p.m === m && p.n === n);
+      state.l4Pair = pair || { m, n, isCorrect: (m+n === ex.b && m*n === ex.c) };
+      state.l4Solved = !!state.l4Pair.isCorrect;
+      render();
+    }
+    function revealLevel4Solution() {
+      const ex = getActiveExercise();
+      const correct = ex.factorPairs.find(p => p.isCorrect);
+      if (correct) {
+        state.l4Pair = correct;
+        state.l4Solved = true;
+      }
+      render();
+    }
+
+    // Modales
+    function openMirrorModal() {
+      state.isMirrorOpen = true;
+      state.mirrorStep = 0;
+      render();
+    }
+    function closeMirrorModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      state.isMirrorOpen = false;
+      render();
+    }
+    function nextMirrorStep() {
+      state.mirrorStep = Math.min(state.mirrorStep + 1, 3);
+      render();
+    }
+    function resetMirrorStep() {
+      state.mirrorStep = 0;
+      render();
+    }
+
+    function openFreeBoardModal() {
+      state.isFreeBoardOpen = true;
+      render();
+    }
+    function closeFreeBoardModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      state.isFreeBoardOpen = false;
+      render();
+    }
+
+    function openGuideModal() {
+      state.isGuideOpen = true;
+      render();
+    }
+    function closeGuideModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      state.isGuideOpen = false;
+      render();
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Aplicar ejercicio del Pizarrón Libre
+    function handleApplyFreeBoard(e) {
+      e.preventDefault();
+      if (state.level === 1) {
+        const t1Str = document.getElementById('fb-l1-t1').value;
+        const t2Str = document.getElementById('fb-l1-t2').value;
+        const fcStr = document.getElementById('fb-l1-fc').value;
+        const parStr = document.getElementById('fb-l1-par').value;
+        state.custom[1] = {
+          id: 'custom-1',
+          expression: `${t1Str} ${t2Str.startsWith('+') || t2Str.startsWith('-') ? t2Str : '+' + t2Str}`,
+          terms: [parseSimpleTerm(t1Str, 'ct1'), parseSimpleTerm(t2Str, 'ct2')],
+          commonFactor: fcStr.trim(),
+          parenthesisFactor: parStr.trim(),
+          factoredExpression: `${fcStr.trim()}(${parStr.trim()})`,
+          steps: [
+            `Paso 1: Identificar los términos ${t1Str} y ${t2Str}.`,
+            `Paso 2: Extraer el factor común convenido con el grupo: ${fcStr}.`,
+            `Paso 3: Dividir cada término entre ${fcStr}.`,
+            `Paso 4: Expresión resultante: ${fcStr}(${parStr}).`
+          ]
+        };
+      } else if (state.level === 2) {
+        const h = document.getElementById('fb-l2-h').value.trim();
+        const a1 = document.getElementById('fb-l2-a1').value.trim();
+        const b1 = document.getElementById('fb-l2-b1').value.trim();
+        const a2 = document.getElementById('fb-l2-a2').value.trim();
+        const b2 = document.getElementById('fb-l2-b2').value.trim();
+        state.custom[2] = {
+          id: 'custom-2',
+          expression: `${a1} + ${a2}`,
+          height: h,
+          heightOptions: [h, '2', 'x', '10'],
+          sections: [
+            { id: 'cs1', termString: a1, widthLabel: b1, widthValue: b1, cls: 'box-1' },
+            { id: 'cs2', termString: a2, widthLabel: b2, widthValue: b2, cls: 'box-2' }
+          ],
+          totalBase: `${b1} + ${b2}`,
+          factoredExpression: `${h}(${b1} + ${b2})`,
+          steps: [
+            `Paso 1: Sección 1 área ${a1} y sección 2 área ${a2}.`,
+            `Paso 2: Altura común compartida: ${h}.`,
+            `Paso 3: Bases parciales correspondientes: ${b1} y ${b2}.`,
+            `Paso 4: Factorización geométrica: ${h}(${b1} + ${b2}).`
+          ]
+        };
+        state.l2SelectedHeight = '';
+        state.l2TypedHeight = '';
+        state.l2UserWidths = {};
+        state.l2Solved = false;
+      } else if (state.level === 3) {
+        const polyStr = document.getElementById('fb-l3-poly').value.trim();
+        const tokens = polyStr.match(/([+-]?[^+-]+)/g) || ['12x³y²', '-18x²y', '+6xy'];
+        const parsed = tokens.map((tok, i) => parseSimpleTerm(tok.trim(), 'c' + i));
+        state.custom[3] = {
+          id: 'custom-3',
+          expression: polyStr,
+          terms: parsed,
+          coefficients: parsed.map(t => t.coefficient),
+          gcd: 6,
+          gcdOptions: [2, 3, 6, 12],
+          allVariables: ['x', 'y'],
+          commonVariables: ['x', 'y'],
+          variableMinExponents: { x: 1, y: 1 },
+          commonFactorString: '6xy',
+          quotients: [
+            { original: '12x³y²', divided: '2x²y' },
+            { original: '-18x²y', divided: '-3x' },
+            { original: '+6xy', divided: '+1' }
+          ],
+          factoredExpression: '6xy(2x²y - 3x + 1)',
+          steps: [
+            'Paso 1: Analizar coeficientes de cada término personalizado.',
+            'Paso 2: Identificar literales que se repiten.',
+            'Paso 3: Seleccionar los menores exponentes.',
+            'Paso 4: Realizar la división de cada término.'
+          ]
+        };
+        state.l3Gcd = null;
+        state.l3Vars = [];
+        state.l3Exps = {};
+        state.l3DivIdx = 0;
+      } else if (state.level === 4) {
+        const b = parseInt(document.getElementById('fb-l4-b').value, 10) || 8;
+        const c = parseInt(document.getElementById('fb-l4-c').value, 10) || 12;
+        const pairs = findFactorPairs(c, b);
+        const correct = pairs.find(p => p.isCorrect) || pairs[0] || { m: 2, n: 6 };
+        state.custom[4] = {
+          id: 'custom-4',
+          expression: `x² + ${b}x + ${c}`,
+          b, c,
+          m: correct.m,
+          n: correct.n,
+          factorPairs: pairs,
+          factoredExpression: `(x + ${correct.m})(x + ${correct.n})`,
+          steps: [
+            `Paso 1: Coeficientes b = ${b} y c = ${c}.`,
+            `Paso 2: Buscar factores de ${c} que sumen ${b}.`,
+            `Paso 3: Se verifica m = ${correct.m} y n = ${correct.n}.`,
+            `Paso 4: Factorización: (x + ${correct.m})(x + ${correct.n}).`
+          ]
+        };
+        state.l4Pair = null;
+        state.l4Solved = false;
+      }
+      state.step = 0;
+      closeFreeBoardModal();
+      render();
+    }
+
+    // Inicializar al cargar el documento
+    document.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
+  </script>
+</body>
+</html>
